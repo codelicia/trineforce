@@ -1,0 +1,16 @@
+{
+    "require": {
+        "beberlei/assert": "^2.3",
+        "doctrine/orm": "^2.6",
+        "guzzlehttp/guzzle": "^6.0",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Codelicia\\": "src/"
+        }
+    }
+}
