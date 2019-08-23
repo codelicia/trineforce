@@ -15,8 +15,7 @@ abstract class AbstractSoqlDriver implements Driver, ExceptionConverterDriver
     /** {@inheritdoc} */
     public function convertException($message, DriverException $exception)
     {
-        // TODO: improve exception to more specific exceptions
-        return new \Doctrine\DBAL\Exception\DriverException($message, $exception);
+        return new DriverError($message, $exception);
     }
 
     /** {@inheritdoc} */
