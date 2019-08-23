@@ -11,12 +11,7 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use GuzzleHttp\Client;
 use IteratorAggregate;
-use stdClass;
-use const PREG_OFFSET_CAPTURE;
-use function array_combine;
 use function count;
-use function feof;
-use function fread;
 use function get_resource_type;
 use function implode;
 use function is_numeric;
@@ -26,9 +21,9 @@ use function json_decode;
 use function preg_match;
 use function preg_quote;
 use function sprintf;
-use function str_repeat;
 use function str_replace;
 use function substr;
+use const PREG_OFFSET_CAPTURE;
 
 class SoqlStatement implements IteratorAggregate, Statement
 {
@@ -169,6 +164,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         return true;
     }
 
+    /** {@inheritDoc} */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null) : bool
     {
         return $this->bindValue($column, $variable, $type);
@@ -178,7 +174,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     {
         if (! is_numeric($param)) {
             throw new SoqlException(
-                'sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.'
+                'SOQL does not support named parameters to queries, use question mark (?) placeholders instead.'
             );
         }
 
@@ -188,13 +184,11 @@ class SoqlStatement implements IteratorAggregate, Statement
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function execute($params = null)
+    /** {@inheritdoc} */
+    public function execute($params = null): bool
     {
         if ($this->_bindedValues !== null) {
-            [$types, $values, $streams] = $this->separateBoundValues();
+            $values = $this->separateBoundValues();
 
             // TODO: Use proper types
             $e = [];
@@ -202,57 +196,20 @@ class SoqlStatement implements IteratorAggregate, Statement
                 $e[] = is_string($v) ? "'$v'" : $v;
             }
             $this->statement = str_replace($this->paramMap, $e, $this->statement);
-
-            $this->sendLongData($streams);
         }
 
-//        if (! $this->_stmt->execute()) {
-//            throw new SoqlException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
-//        }
-//
-//        if ($this->_columnNames === null) {
-//            $meta = $this->_stmt->result_metadata();
-//            if ($meta !== false) {
-//                $columnNames = [];
-//                foreach ($meta->fetch_fields() as $col) {
-//                    $columnNames[] = $col->name;
-//                }
-//                $meta->free();
-//
-//                $this->_columnNames = $columnNames;
-//            } else {
-//                $this->_columnNames = false;
-//            }
-//        }
-//
-//        if ($this->_columnNames !== false) {
-//            // Store result of every execution which has it. Otherwise it will be impossible
-//            // to execute a new statement in case if the previous one has non-fetched rows
-//            $this->_stmt->store_result();
-//
-//            $this->_rowBindedValues = array_fill(0, count($this->_columnNames), null);
-//
-//            $refs = [];
-//            foreach ($this->_rowBindedValues as $key => &$value) {
-//                $refs[$key] =& $value;
-//            }
-//
-//            if (! $this->_stmt->bind_result(...$refs)) {
-//                throw new SoqlException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
-//            }
-//        }
         $this->result = true;
 
         return true;
     }
 
     /**
-     * @return array<int, array<int|string, mixed>|string>
+     * @return array<int, mixed>
      * @throws InvalidArgumentException
      */
     private function separateBoundValues() : array
     {
-        $streams = $values = [];
+        $values  = [];
         $types   = $this->types;
 
         foreach ($this->_bindedValues as $parameter => $value) {
@@ -265,7 +222,6 @@ class SoqlStatement implements IteratorAggregate, Statement
                     if (get_resource_type($value) !== 'stream') {
                         throw new InvalidArgumentException('Resources passed with the LARGE_OBJECT parameter type must be stream resources.');
                     }
-                    $streams[$parameter] = $value;
                     $values[$parameter]  = null;
                     continue;
                 }
@@ -276,25 +232,7 @@ class SoqlStatement implements IteratorAggregate, Statement
             $values[$parameter] = $value;
         }
 
-        return [$types, $values, $streams];
-    }
-
-    /** @throws SoqlException */
-    private function sendLongData($streams) : void
-    {
-        foreach ($streams as $paramNr => $stream) {
-            while (! feof($stream)) {
-                $chunk = fread($stream, 8192);
-
-                if ($chunk === false) {
-                    throw new SoqlException("Failed reading the stream resource for parameter offset ${paramNr}.");
-                }
-
-                if (! $this->statement->send_long_data($paramNr - 1, $chunk)) {
-                    throw new SoqlException($this->statement->error, $this->statement->sqlstate, $this->statement->errno);
-                }
-            }
-        }
+        return $values;
     }
 
     /** @return mixed[]|false */
@@ -314,49 +252,17 @@ class SoqlStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
-
-        if ($fetchMode === FetchMode::COLUMN) {
-            return $this->fetchColumn();
-        }
-
         $values = $this->_fetch();
         if ($values === null) {
             return false;
         }
 
         if ($values === false) {
+            // TODO: be more explicit about errors
             throw new SoqlException($this->statement->error, $this->statement->sqlstate, $this->statement->errno);
         }
 
-        // TODO: that one is a completely mess
-        switch ($fetchMode) {
-            case FetchMode::NUMERIC:
-                return $values;
-
-            case FetchMode::ASSOCIATIVE:
-                return $values;
-//                return array_combine($this->_columnNames, $values);
-
-            case FetchMode::MIXED:
-                $ret  = array_combine($this->_columnNames, $values);
-                $ret += $values;
-
-                return $ret;
-
-            case FetchMode::STANDARD_OBJECT:
-                $assoc = array_combine($this->_columnNames, $values);
-                $ret   = new stdClass();
-
-                foreach ($assoc as $column => $value) {
-                    $ret->$column = $value;
-                }
-
-                return $ret;
-
-            default:
-                throw new SoqlException(sprintf("Unknown fetch type '%s'", $fetchMode));
-        }
+        return $values;
     }
 
     /**
@@ -408,9 +314,8 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritdoc} */
-    public function closeCursor()
+    public function closeCursor(): bool
     {
-        $this->statement->free_result();
         $this->result = false;
 
         return true;
@@ -433,7 +338,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritdoc} */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null): bool
     {
         $this->_defaultFetchMode = $fetchMode;
 
@@ -441,7 +346,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritdoc} */
-    public function getIterator()
+    public function getIterator(): StatementIterator
     {
         return new StatementIterator($this);
     }
