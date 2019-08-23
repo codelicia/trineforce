@@ -163,7 +163,6 @@ class SoqlStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        $currentLiteralDelimiter = false;
         ++$tokenOffset;
 
         return true;
