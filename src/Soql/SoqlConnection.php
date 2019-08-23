@@ -8,6 +8,7 @@ use Assert\Assertion;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\ParameterType;
 use GuzzleHttp\Client;
+use function addslashes;
 use function func_get_args;
 use function json_decode;
 use function sprintf;
@@ -74,11 +75,12 @@ class SoqlConnection implements Connection
 
     public function quote($input, $type = ParameterType::STRING) : string
     {
-        return "'" . $this->conn->escape_string($input) . "'";
+        return "'" . addslashes($input) . "'";
     }
 
     public function exec($statement) : int
     {
+        // TODO: Look in the payload
         if ($this->conn->query($statement) === false) {
             throw new SoqlException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
         }
@@ -93,6 +95,7 @@ class SoqlConnection implements Connection
 
     public function beginTransaction() : bool
     {
+        // TODO: throw exception as transaction is not supported?
         $this->conn->query('START TRANSACTION');
 
         return true;
