@@ -11,6 +11,7 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use GuzzleHttp\Client;
 use IteratorAggregate;
+use const PREG_OFFSET_CAPTURE;
 use function count;
 use function get_resource_type;
 use function implode;
@@ -23,12 +24,11 @@ use function preg_quote;
 use function sprintf;
 use function str_replace;
 use function substr;
-use const PREG_OFFSET_CAPTURE;
 
 class SoqlStatement implements IteratorAggregate, Statement
 {
     /** @var string[] */
-    protected static $_paramTypeMap = [
+    protected static $paramTypeMap = [
         ParameterType::STRING => 's',
         ParameterType::BINARY => 's',
         ParameterType::BOOLEAN => 'i',
@@ -40,20 +40,20 @@ class SoqlStatement implements IteratorAggregate, Statement
     /** @var Client */
     protected $conn;
 
-    /** @var array */
+    /** @var string */
     protected $statement;
 
     /** @var string[]|bool|null */
-    protected $_columnNames;
+    protected $columnNames;
 
     /** @var mixed[] */
-    protected $_bindedValues;
+    protected $bindedValues;
 
     /** @var string */
     protected $types;
 
     /** @var int */
-    protected $_defaultFetchMode = FetchMode::MIXED;
+    protected $defaultFetchMode = FetchMode::MIXED;
 
     /** @var bool */
     private $result = false;
@@ -61,13 +61,14 @@ class SoqlStatement implements IteratorAggregate, Statement
     /** @var array<int, string> */
     private $paramMap;
 
-    public function __construct(Client $conn, $prepareString)
+    public function __construct(Client $conn, string $prepareString)
     {
         $this->conn                         = $conn;
         [$this->statement, $this->paramMap] = self::convertPositionalToNamedPlaceholders($prepareString);
     }
 
-    public static function convertPositionalToNamedPlaceholders($statement)
+    /** @return string[]|mixed[][] */
+    public static function convertPositionalToNamedPlaceholders(string $statement) : array
     {
         $fragmentOffset          = $tokenOffset = 0;
         $fragments               = $paramMap = [];
@@ -89,7 +90,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         } while ($result);
 
         if ($currentLiteralDelimiter) {
-            throw new SoqlException(sprintf(
+            throw new SoqlError(sprintf(
                 'The statement contains non-terminated string literal starting at offset %d',
                 $tokenOffset - 1
             ));
@@ -101,14 +102,18 @@ class SoqlStatement implements IteratorAggregate, Statement
         return [$statement, $paramMap];
     }
 
+    /**
+     * @param string[] $fragments
+     * @param string[] $paramMap
+     */
     private static function findPlaceholderOrOpeningQuote(
-        $statement,
-        &$tokenOffset,
-        &$fragmentOffset,
-        &$fragments,
-        &$currentLiteralDelimiter,
-        &$paramMap
-    ) {
+        string $statement,
+        int &$tokenOffset,
+        int &$fragmentOffset,
+        array &$fragments,
+        ?string &$currentLiteralDelimiter,
+        array &$paramMap
+    ) : bool {
         $token = self::findToken($statement, $tokenOffset, '/[?\'"]/');
 
         if (! $token) {
@@ -133,7 +138,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         return true;
     }
 
-    private static function findToken($statement, &$offset, $regex)
+    private static function findToken(string $statement, int &$offset, string $regex) : ?string
     {
         if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
             $offset = $matches[0][1];
@@ -144,10 +149,10 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     private static function findClosingQuote(
-        $statement,
-        &$tokenOffset,
-        &$currentLiteralDelimiter
-    ) {
+        string $statement,
+        int &$tokenOffset,
+        ?string &$currentLiteralDelimiter
+    ) : bool {
         $token = self::findToken(
             $statement,
             $tokenOffset,
@@ -170,30 +175,31 @@ class SoqlStatement implements IteratorAggregate, Statement
         return $this->bindValue($column, $variable, $type);
     }
 
+    /** {@inheritDoci} */
     public function bindValue($param, $value, $type = ParameterType::STRING) : bool
     {
         if (! is_numeric($param)) {
-            throw new SoqlException(
+            throw new SoqlError(
                 'SOQL does not support named parameters to queries, use question mark (?) placeholders instead.'
             );
         }
 
-        $this->_bindedValues[$param] = $value;
-        $this->types[$param]         = $type;
+        $this->bindedValues[$param] = $value;
+        $this->types[$param]        = $type;
 
         return true;
     }
 
     /** {@inheritdoc} */
-    public function execute($params = null): bool
+    public function execute($params = null) : bool
     {
-        if ($this->_bindedValues !== null) {
+        if ($this->bindedValues !== null) {
             $values = $this->separateBoundValues();
 
             // TODO: Use proper types
             $e = [];
             foreach ($values as $v) {
-                $e[] = is_string($v) ? "'$v'" : $v;
+                $e[] = is_string($v) ? sprintf("'%s'", $v) : $v;
             }
             $this->statement = str_replace($this->paramMap, $e, $this->statement);
         }
@@ -204,29 +210,32 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /**
-     * @return array<int, mixed>
+     * @return string[]
+     *
      * @throws InvalidArgumentException
      */
     private function separateBoundValues() : array
     {
-        $values  = [];
-        $types   = $this->types;
+        $values = [];
+        $types  = $this->types;
 
-        foreach ($this->_bindedValues as $parameter => $value) {
+        foreach ($this->bindedValues as $parameter => $value) {
             if (! isset($types[$parameter - 1])) {
-                $types[$parameter - 1] = static::$_paramTypeMap[ParameterType::STRING];
+                $types[$parameter - 1] = static::$paramTypeMap[ParameterType::STRING];
             }
 
-            if ($types[$parameter - 1] === static::$_paramTypeMap[ParameterType::LARGE_OBJECT]) {
+            if ($types[$parameter - 1] === static::$paramTypeMap[ParameterType::LARGE_OBJECT]) {
                 if (is_resource($value)) {
                     if (get_resource_type($value) !== 'stream') {
-                        throw new InvalidArgumentException('Resources passed with the LARGE_OBJECT parameter type must be stream resources.');
+                        throw new InvalidArgumentException(
+                            'Resources passed with the LARGE_OBJECT parameter type must be stream resources.'
+                        );
                     }
-                    $values[$parameter]  = null;
+                    $values[$parameter] = null;
                     continue;
                 }
 
-                $types[$parameter - 1] = static::$_paramTypeMap[ParameterType::STRING];
+                $types[$parameter - 1] = static::$paramTypeMap[ParameterType::STRING];
             }
 
             $values[$parameter] = $value;
@@ -236,7 +245,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** @return mixed[]|false */
-    private function _fetch()
+    private function doFetch()
     {
         // TODO: how to deal with different versions? Maybe `driverOptions`?
         $request = $this->conn->get('/services/data/v20.0/query?q=' . $this->statement);
@@ -252,14 +261,14 @@ class SoqlStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        $values = $this->_fetch();
+        $values = $this->doFetch();
         if ($values === null) {
             return false;
         }
 
         if ($values === false) {
             // TODO: be more explicit about errors
-            throw new SoqlException($this->statement->error, $this->statement->sqlstate, $this->statement->errno);
+            throw new SoqlError($this->statement->error, $this->statement->sqlstate, $this->statement->errno);
         }
 
         return $values;
@@ -314,7 +323,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritdoc} */
-    public function closeCursor(): bool
+    public function closeCursor() : bool
     {
         $this->result = false;
 
@@ -324,7 +333,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     /** {@inheritdoc} */
     public function rowCount()
     {
-        if ($this->_columnNames === false) {
+        if ($this->columnNames === false) {
             return $this->statement->affected_rows;
         }
 
@@ -338,15 +347,15 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritdoc} */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null): bool
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null) : bool
     {
-        $this->_defaultFetchMode = $fetchMode;
+        $this->defaultFetchMode = $fetchMode;
 
         return true;
     }
 
     /** {@inheritdoc} */
-    public function getIterator(): StatementIterator
+    public function getIterator() : StatementIterator
     {
         return new StatementIterator($this);
     }
