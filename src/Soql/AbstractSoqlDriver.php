@@ -19,19 +19,13 @@ abstract class AbstractSoqlDriver implements Driver, ExceptionConverterDriver
         return new \Doctrine\DBAL\Exception\DriverException($message, $exception);
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function getDatabase(Connection $conn)
     {
-        $params = $conn->getParams();
-
-        return $params['path'] ?? null;
+        return null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function getDatabasePlatform()
     {
         // TODO: implements specific platform
