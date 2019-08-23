@@ -6,6 +6,6 @@ namespace Codelicia\Soql;
 
 use Doctrine\DBAL\Driver\AbstractDriverException;
 
-class SoqlException extends AbstractDriverException
+class SoqlError extends AbstractDriverException
 {
 }
