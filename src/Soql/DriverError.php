@@ -8,7 +8,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException as DbalDriverException;
 use Exception;
 
-class DriverException extends DBALException
+class DriverError extends DBALException
 {
     /** @var DbalDriverException */
     private $driverException;
