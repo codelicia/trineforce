@@ -248,6 +248,7 @@ class SoqlStatement implements IteratorAggregate, Statement
 
     /**
      * @return array<int, array<int|string, mixed>|string>
+     * @throws InvalidArgumentException
      */
     private function separateBoundValues() : array
     {
@@ -267,9 +268,9 @@ class SoqlStatement implements IteratorAggregate, Statement
                     $streams[$parameter] = $value;
                     $values[$parameter]  = null;
                     continue;
-                } else {
-                    $types[$parameter - 1] = static::$_paramTypeMap[ParameterType::STRING];
                 }
+
+                $types[$parameter - 1] = static::$_paramTypeMap[ParameterType::STRING];
             }
 
             $values[$parameter] = $value;
@@ -278,9 +279,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         return [$types, $values, $streams];
     }
 
-    /**
-     * @throws SoqlException
-     */
+    /** @throws SoqlException */
     private function sendLongData($streams) : void
     {
         foreach ($streams as $paramNr => $stream) {
@@ -298,26 +297,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         }
     }
 
-    /**
-     * Binds a array of values to bound parameters.
-     *
-     * @param mixed[] $values
-     */
-    private function _bindValues($values) : bool
-    {
-        $params = [];
-        $types  = str_repeat('s', count($values));
-
-        foreach ($values as &$v) {
-            $params[] =& $v;
-        }
-
-        return $this->statement->bind_param($types, ...$params);
-    }
-
-    /**
-     * @return mixed[]|false
-     */
+    /** @return mixed[]|false */
     private function _fetch()
     {
         // TODO: how to deal with different versions? Maybe `driverOptions`?
@@ -326,9 +306,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         return json_decode($request->getBody()->getContents(), true);
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function fetch($fetchMode = null, $cursorOrientation = null, $cursorOffset = 0)
     {
         $this->result = true;
@@ -386,8 +364,6 @@ class SoqlStatement implements IteratorAggregate, Statement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
-
         $rows = [];
 
         if ($fetchMode !== FetchMode::COLUMN) {
@@ -407,9 +383,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         return $rows;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function fetchColumn($columnIndex = 0)
     {
         $row = $this->fetch(FetchMode::NUMERIC);
@@ -421,25 +395,19 @@ class SoqlStatement implements IteratorAggregate, Statement
         return $row[$columnIndex] ?? null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function errorCode()
     {
         return $this->statement->errno;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function errorInfo()
     {
         return $this->statement->error;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function closeCursor()
     {
         $this->statement->free_result();
@@ -448,9 +416,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function rowCount()
     {
         if ($this->_columnNames === false) {
@@ -460,17 +426,13 @@ class SoqlStatement implements IteratorAggregate, Statement
         return $this->statement->num_rows;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function columnCount()
     {
         return $this->statement->field_count;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
         $this->_defaultFetchMode = $fetchMode;
@@ -478,9 +440,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    /** {@inheritdoc} */
     public function getIterator()
     {
         return new StatementIterator($this);
