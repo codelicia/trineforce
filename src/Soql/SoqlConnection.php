@@ -33,6 +33,9 @@ class SoqlConnection implements Connection
     /** @var Client */
     private $conn;
 
+    /**
+     * @param string[]|int[] $params
+     */
     public function __construct(array $params, string $username, string $password)
     {
         Assertion::keyExists($params, 'salesforceInstance');
@@ -58,11 +61,13 @@ class SoqlConnection implements Connection
         ]);
     }
 
+    /** {@inheritDoc} */
     public function prepare($prepareString) : SoqlStatement
     {
         return new SoqlStatement($this->conn, $prepareString);
     }
 
+    /** {@inheritDoc} */
     public function query() : SoqlStatement
     {
         $args = func_get_args();
@@ -73,26 +78,30 @@ class SoqlConnection implements Connection
         return $stmt;
     }
 
+    /** {@inheritDoc} */
     public function quote($input, $type = ParameterType::STRING) : string
     {
         return "'" . addslashes($input) . "'";
     }
 
+    /** {@inheritDoc} */
     public function exec($statement) : int
     {
         // TODO: Look in the payload
         if ($this->conn->query($statement) === false) {
-            throw new SoqlException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
+            throw new SoqlError($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
         }
 
         return $this->conn->affected_rows;
     }
 
+    /** {@inheritDoc} */
     public function lastInsertId($name = null) : string
     {
         return $this->conn->insert_id;
     }
 
+    /** {@inheritDoc} */
     public function beginTransaction() : bool
     {
         // TODO: throw exception as transaction is not supported?
@@ -101,11 +110,13 @@ class SoqlConnection implements Connection
         return true;
     }
 
+    /** {@inheritDoc} */
     public function commit() : bool
     {
         return $this->conn->commit();
     }
 
+    /** {@inheritDoc} */
     public function rollBack() : bool
     {
         return $this->conn->rollback();
