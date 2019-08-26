@@ -1,4 +1,14 @@
 {
+    "name": "codelicia/trineforce",
+    "description": "Salesforce Soql Doctrine Driver",
+    "homepage": "https://github.com/codelicia/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jefersson Nathan",
+            "email": "malukenho.dev@gmail.com"
+        }
+    ],
     "require": {
         "beberlei/assert": "^2.3",
         "doctrine/orm": "^2.6",
