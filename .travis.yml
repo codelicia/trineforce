@@ -13,6 +13,10 @@ env:
   - DEPENDENCIES="--prefer-lowest --prefer-stable"
   - DEPENDENCIES="--classmap-authoritative"
 
+matrix:
+  allow_failures:
+    - php: 7.4snapshot
+
 before_script:
   - composer self-update
   - composer update --prefer-dist $DEPENDENCIES
