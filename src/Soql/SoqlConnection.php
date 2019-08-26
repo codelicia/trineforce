@@ -126,7 +126,7 @@ class SoqlConnection implements Connection
     }
 
     /** {@inheritdoc} */
-    public function errorInfo(): array
+    public function errorInfo() : array
     {
         return $this->conn->error;
     }
