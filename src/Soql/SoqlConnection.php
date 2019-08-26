@@ -104,22 +104,19 @@ class SoqlConnection implements Connection
     /** {@inheritDoc} */
     public function beginTransaction() : bool
     {
-        // TODO: throw exception as transaction is not supported?
-        $this->conn->query('START TRANSACTION');
-
         return true;
     }
 
     /** {@inheritDoc} */
     public function commit() : bool
     {
-        return $this->conn->commit();
+        return true;
     }
 
     /** {@inheritDoc} */
     public function rollBack() : bool
     {
-        return $this->conn->rollback();
+        return true;
     }
 
     /** {@inheritdoc} */
@@ -129,7 +126,7 @@ class SoqlConnection implements Connection
     }
 
     /** {@inheritdoc} */
-    public function errorInfo()
+    public function errorInfo(): array
     {
         return $this->conn->error;
     }
