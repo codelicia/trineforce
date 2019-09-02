@@ -11,7 +11,6 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use GuzzleHttp\Client;
 use IteratorAggregate;
-use const PREG_OFFSET_CAPTURE;
 use function count;
 use function get_resource_type;
 use function implode;
@@ -24,6 +23,7 @@ use function preg_quote;
 use function sprintf;
 use function str_replace;
 use function substr;
+use const PREG_OFFSET_CAPTURE;
 
 class SoqlStatement implements IteratorAggregate, Statement
 {
@@ -38,7 +38,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     ];
 
     /** @var Client */
-    protected $conn;
+    protected $connection;
 
     /** @var string */
     protected $statement;
@@ -63,7 +63,7 @@ class SoqlStatement implements IteratorAggregate, Statement
 
     public function __construct(Client $conn, string $prepareString)
     {
-        $this->conn                         = $conn;
+        $this->connection = $conn;
         [$this->statement, $this->paramMap] = self::convertPositionalToNamedPlaceholders($prepareString);
     }
 
@@ -247,7 +247,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     private function doFetch()
     {
         // TODO: how to deal with different versions? Maybe `driverOptions`?
-        $request = $this->conn->get('/services/data/v20.0/query?q=' . $this->statement);
+        $request = $this->connection->get('/services/data/v20.0/query?q=' . $this->statement);
 
         return json_decode($request->getBody()->getContents(), true);
     }

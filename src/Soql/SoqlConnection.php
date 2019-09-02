@@ -31,7 +31,7 @@ class SoqlConnection implements Connection
     private $password;
 
     /** @var Client */
-    private $conn;
+    private $connection;
 
     /**
      * @param string[]|int[] $params
@@ -51,7 +51,7 @@ class SoqlConnection implements Connection
 
         $token = $this->retrieveAccessToken();
 
-        $this->conn = new Client([
+        $this->connection = new Client([
             'base_uri' => $this->salesforceInstance,
             'headers' => [
                 'Authorization' => sprintf('Bearer %s', $token),
@@ -64,7 +64,7 @@ class SoqlConnection implements Connection
     /** {@inheritDoc} */
     public function prepare($prepareString) : SoqlStatement
     {
-        return new SoqlStatement($this->conn, $prepareString);
+        return new SoqlStatement($this->connection, $prepareString);
     }
 
     /** {@inheritDoc} */
@@ -88,17 +88,17 @@ class SoqlConnection implements Connection
     public function exec($statement) : int
     {
         // TODO: Look in the payload
-        if ($this->conn->query($statement) === false) {
-            throw new SoqlError($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
+        if ($this->connection->query($statement) === false) {
+            throw new SoqlError($this->connection->error, $this->connection->sqlstate, $this->connection->errno);
         }
 
-        return $this->conn->affected_rows;
+        return $this->connection->affected_rows;
     }
 
     /** {@inheritDoc} */
     public function lastInsertId($name = null) : string
     {
-        return $this->conn->insert_id;
+        return $this->connection->insert_id;
     }
 
     /** {@inheritDoc} */
@@ -122,13 +122,13 @@ class SoqlConnection implements Connection
     /** {@inheritdoc} */
     public function errorCode()
     {
-        return $this->conn->errno;
+        return $this->connection->errno;
     }
 
     /** {@inheritdoc} */
     public function errorInfo() : array
     {
-        return $this->conn->error;
+        return $this->connection->error;
     }
 
     private function retrieveAccessToken() : string
