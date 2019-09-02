@@ -4,67 +4,26 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
-use Assert\Assertion;
+use Codelicia\Soql\Factory\AuthorizedClientFactoryInterface;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\ParameterType;
-use GuzzleHttp\Client;
 use function addslashes;
 use function func_get_args;
-use function json_decode;
-use function sprintf;
 
 class SoqlConnection implements Connection
 {
-    /** @var string */
-    private $salesforceInstance;
+    /** @var AuthorizedClientFactoryInterface */
+    private $authorizedClientFactory;
 
-    /** @var string */
-    private $consumerKey;
-
-    /** @var string */
-    private $consumerSecret;
-
-    /** @var string */
-    private $username;
-
-    /** @var string */
-    private $password;
-
-    /** @var Client */
-    private $connection;
-
-    /**
-     * @param string[]|int[] $params
-     */
-    public function __construct(array $params, string $username, string $password)
+    public function __construct(AuthorizedClientFactoryInterface $authorizedClientFactory)
     {
-        Assertion::keyExists($params, 'salesforceInstance');
-        Assertion::keyExists($params, 'consumerKey');
-        Assertion::keyExists($params, 'consumerSecret');
-
-        $this->salesforceInstance = $params['salesforceInstance'];
-        $this->consumerKey        = $params['consumerKey'];
-        $this->consumerSecret     = $params['consumerSecret'];
-
-        $this->username = $username;
-        $this->password = $password;
-
-        $token = $this->retrieveAccessToken();
-
-        $this->connection = new Client([
-            'base_uri' => $this->salesforceInstance,
-            'headers' => [
-                'Authorization' => sprintf('Bearer %s', $token),
-                'X-PrettyPrint' => '1',
-                'Content-Type' => 'application/json',
-            ],
-        ]);
+        $this->authorizedClientFactory = $authorizedClientFactory;
     }
 
     /** {@inheritDoc} */
     public function prepare($prepareString) : SoqlStatement
     {
-        return new SoqlStatement($this->connection, $prepareString);
+        return new SoqlStatement($this->authorizedClientFactory->__invoke(), $prepareString);
     }
 
     /** {@inheritDoc} */
@@ -129,24 +88,5 @@ class SoqlConnection implements Connection
     public function errorInfo() : array
     {
         return $this->connection->error;
-    }
-
-    private function retrieveAccessToken() : string
-    {
-        $client  = new Client(['base_uri' => $this->salesforceInstance]);
-        $options = [
-            'form_params' => [
-                'grant_type' => 'password',
-                'client_id' => $this->consumerKey,
-                'client_secret' => $this->consumerSecret,
-                'username' => $this->username,
-                'password' => $this->password,
-            ],
-        ];
-
-        $request      = $client->post('/services/oauth2/token', $options);
-        $authResponse = json_decode($request->getBody()->getContents(), true);
-
-        return $authResponse['access_token'];
     }
 }
