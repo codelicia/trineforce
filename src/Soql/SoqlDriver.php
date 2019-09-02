@@ -6,11 +6,15 @@ namespace Codelicia\Soql;
 
 use Assert\Assertion;
 use Assert\AssertionFailedException;
+use Codelicia\Soql\Factory\AccessTokenFactory;
+use Codelicia\Soql\Factory\AuthorizedClientFactory;
+use Codelicia\Soql\Factory\AuthorizedClientFactoryInterface;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use function array_key_exists;
 
 class SoqlDriver implements Driver, ExceptionConverterDriver
 {
@@ -24,7 +28,9 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
         Assertion::notNull($username);
         Assertion::notNull($password);
 
-        return new SoqlConnection($params, (string) $username, (string) $password);
+        $authorizedClientFactory = $this->getAuthorizedClientFactory($username, $password, $params);
+
+        return new SoqlConnection($params, (string) $username, (string) $password, $authorizedClientFactory);
     }
 
     public function getName() : string
@@ -55,5 +61,26 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
         // TODO: implements specific schema manager
+    }
+
+    private function getAuthorizedClientFactory($username, $password, array $params)
+    {
+        Assertion::keyExists($params, 'salesforceInstance');
+        Assertion::keyExists($params, 'consumerKey');
+        Assertion::keyExists($params, 'consumerSecret');
+
+        if (array_key_exists('authorizedClientFactory', $params)) {
+            Assertion::isInstanceOf($params['authorizedClientFactory'], AuthorizedClientFactoryInterface::class);
+
+            return $params['authorizedClientFactory'];
+        }
+
+        return new AuthorizedClientFactory(new AccessTokenFactory(
+            $params['salesforceInstance'],
+            $params['consumerKey'],
+            $params['consumerSecret'],
+            $username,
+            $password
+        ), $params['salesforceInstance']);
     }
 }
