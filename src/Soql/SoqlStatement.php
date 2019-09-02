@@ -63,7 +63,7 @@ class SoqlStatement implements IteratorAggregate, Statement
 
     public function __construct(Client $conn, string $prepareString)
     {
-        $this->connection = $conn;
+        $this->connection                   = $conn;
         [$this->statement, $this->paramMap] = self::convertPositionalToNamedPlaceholders($prepareString);
     }
 

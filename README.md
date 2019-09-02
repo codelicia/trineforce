@@ -18,7 +18,7 @@ $ composer require codelicia/trineforce
 
 ### Configuration
 
-If you are familiar with doctrine, then you probably already know how to
+If you are familiar with Doctrine, then you probably already know how to
 configure and use it. But some special configuration is required in order
 to make it work.
 
