@@ -9,7 +9,7 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use IteratorAggregate;
 use function count;
 use function get_resource_type;
@@ -37,7 +37,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         ParameterType::LARGE_OBJECT => 'b',
     ];
 
-    /** @var Client */
+    /** @var ClientInterface */
     protected $connection;
 
     /** @var string */
@@ -61,9 +61,9 @@ class SoqlStatement implements IteratorAggregate, Statement
     /** @var array<int, string> */
     private $paramMap;
 
-    public function __construct(Client $conn, string $prepareString)
+    public function __construct(ClientInterface $connection, string $prepareString)
     {
-        $this->connection                   = $conn;
+        $this->connection                   = $connection;
         [$this->statement, $this->paramMap] = self::convertPositionalToNamedPlaceholders($prepareString);
     }
 
@@ -195,7 +195,6 @@ class SoqlStatement implements IteratorAggregate, Statement
         if ($this->bindedValues !== null) {
             $values = $this->separateBoundValues();
 
-            // TODO: Use proper types
             $e = [];
             foreach ($values as $v) {
                 $e[] = is_string($v) ? sprintf("'%s'", $v) : $v;
@@ -278,23 +277,7 @@ class SoqlStatement implements IteratorAggregate, Statement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        $rows = [];
-
-        if ($fetchMode !== FetchMode::COLUMN) {
-            // TODO: I dunno if it makes sense to use `while` here,
-            //     and after all it is just an http request
-            return $this->fetch($fetchMode);
-//            var_dump($this->fetch());
-//            while (($row = $this->fetch($fetchMode)) !== false) {
-//                $rows[] = $row;
-//            }
-        }
-
-        while (($row = $this->fetchColumn()) !== false) {
-            $rows[] = $row;
-        }
-
-        return $rows;
+        return $this->fetch($fetchMode);
     }
 
     /** {@inheritdoc} */
