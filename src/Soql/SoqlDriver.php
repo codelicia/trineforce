@@ -28,9 +28,7 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
         Assertion::notNull($username);
         Assertion::notNull($password);
 
-        $authorizedClientFactory = $this->getAuthorizedClientFactory($username, $password, $params);
-
-        return new SoqlConnection($params, (string) $username, (string) $password, $authorizedClientFactory);
+        return new SoqlConnection($this->getAuthorizedClientFactory($username, $password, $params));
     }
 
     public function getName() : string
