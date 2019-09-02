@@ -10,6 +10,7 @@ use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ClientException;
 use IteratorAggregate;
 use function count;
 use function get_resource_type;
@@ -36,6 +37,9 @@ class SoqlStatement implements IteratorAggregate, Statement
         ParameterType::INTEGER => 'i',
         ParameterType::LARGE_OBJECT => 'b',
     ];
+
+    /** @var Payload|null */
+    protected $payload;
 
     /** @var ClientInterface */
     protected $connection;
@@ -254,20 +258,29 @@ class SoqlStatement implements IteratorAggregate, Statement
     /** {@inheritdoc} */
     public function fetch($fetchMode = null, $cursorOrientation = null, $cursorOffset = 0)
     {
+        // Early return payload
+        if ($this->payload !== null) {
+            return $this->payload->getResults();
+        }
+
         $this->result = true;
         if (! $this->result) {
             return false;
         }
 
-        $values = $this->doFetch();
-        if ($values === null) {
-            return false;
+        try {
+            $values = $this->doFetch();
+        } catch (ClientException $exception) {
+            $responseContent = $exception->getResponse()->getBody()->getContents();
+            $firstError      = json_decode($responseContent, true)[0];
+            $this->payload   = Payload::withErrors($firstError);
+
+            throw new SoqlError($this->payload->getErrorMessage(), $this->payload->getErrorCode());
         }
 
-        if ($values === false) {
-            // TODO: be more explicit about errors
-            throw new SoqlError($this->statement->error, $this->statement->sqlstate, $this->statement->errno);
-        }
+        $payload = Payload::withValues($values);
+
+        $this->payload = $payload;
 
         return $values;
     }
@@ -295,13 +308,13 @@ class SoqlStatement implements IteratorAggregate, Statement
     /** {@inheritdoc} */
     public function errorCode()
     {
-        return $this->statement->errno;
+        return $this->payload->getErrorCode();
     }
 
     /** {@inheritdoc} */
     public function errorInfo()
     {
-        return $this->statement->error;
+        return $this->payload->getErrorMessage();
     }
 
     /** {@inheritdoc} */
@@ -313,19 +326,15 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritdoc} */
-    public function rowCount()
+    public function rowCount() : int
     {
-        if ($this->columnNames === false) {
-            return $this->statement->affected_rows;
-        }
-
-        return $this->statement->num_rows;
+        return $this->payload->totalSize();
     }
 
     /** {@inheritdoc} */
-    public function columnCount()
+    public function columnCount(): int
     {
-        return $this->statement->field_count;
+        return $this->payload->totalSize();
     }
 
     /** {@inheritdoc} */
