@@ -23,7 +23,6 @@ final class PayloadTest extends TestCase
         self::assertSame([['Id' => '0062X00000vLZDVQA4', 'Name' => 'Pay as you go Opportunity']], $payload->getResults());
         self::assertNull($payload->getErrorMessage());
         self::assertNull($payload->getErrorCode());
-
     }
 
     /**

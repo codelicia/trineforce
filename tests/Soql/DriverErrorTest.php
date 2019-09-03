@@ -15,7 +15,7 @@ final class DriverErrorTest extends TestCase
     /** @test */
     public function it_should_retain_exception_instance() : void
     {
-        $expectedMessage = 'The Driver Has Some Error';
+        $expectedMessage   = 'The Driver Has Some Error';
         $expectedErrorCode = random_int(1, PHP_INT_MAX);
 
         $stackedException = new SoqlError('Wrong Message', null, $expectedErrorCode);

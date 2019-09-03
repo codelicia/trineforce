@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
-use Codelicia\Soql\Factory\AuthorizedClientFactoryInterface;
+use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\ParameterType;
 use function addslashes;
@@ -12,10 +12,10 @@ use function func_get_args;
 
 class SoqlConnection implements Connection
 {
-    /** @var AuthorizedClientFactoryInterface */
+    /** @var AuthorizedClientFactory */
     private $authorizedClientFactory;
 
-    public function __construct(AuthorizedClientFactoryInterface $authorizedClientFactory)
+    public function __construct(AuthorizedClientFactory $authorizedClientFactory)
     {
         $this->authorizedClientFactory = $authorizedClientFactory;
     }

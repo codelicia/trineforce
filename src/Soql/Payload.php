@@ -23,8 +23,14 @@ final class Payload
     /** @var string|null */
     private $errorCode;
 
-    public function __construct(bool $success, int $totalSize, array $values, ?string $errorMessage = null, ?string $errorCode = null)
-    {
+    /** @param mixed[] $values */
+    public function __construct(
+        bool $success,
+        int $totalSize,
+        array $values,
+        ?string $errorMessage = null,
+        ?string $errorCode = null
+    ) {
         $this->success      = $success;
         $this->totalSize    = $totalSize;
         $this->values       = $values;
@@ -32,6 +38,7 @@ final class Payload
         $this->errorCode    = $errorCode;
     }
 
+    /** @param mixed[] $values */
     public static function withValues(iterable $values) : self
     {
         return new self(
@@ -41,7 +48,7 @@ final class Payload
         );
     }
 
-    // TODO: may be move it to the SoqlError exception?
+    /** @param mixed[] $values */
     public static function withErrors(iterable $values) : self
     {
         return new self(
@@ -53,6 +60,11 @@ final class Payload
         );
     }
 
+    /**
+     * @param mixed[][] $row
+     *
+     * @return mixed[][]
+     */
     private static function removeRecordMetadata(array $row) : array
     {
         unset($row['attributes']);

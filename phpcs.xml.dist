@@ -10,5 +10,7 @@
 
     <file>src</file>
 
-    <rule ref="Doctrine"/>
+    <rule ref="Doctrine">
+        <exclude name="SlevomatCodingStandard.Classes.UnusedPrivateElements"/>
+    </rule>
 </ruleset>

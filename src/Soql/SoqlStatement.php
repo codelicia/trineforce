@@ -12,6 +12,7 @@ use Doctrine\DBAL\ParameterType;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 use IteratorAggregate;
+use const PREG_OFFSET_CAPTURE;
 use function count;
 use function get_resource_type;
 use function implode;
@@ -24,7 +25,6 @@ use function preg_quote;
 use function sprintf;
 use function str_replace;
 use function substr;
-use const PREG_OFFSET_CAPTURE;
 
 class SoqlStatement implements IteratorAggregate, Statement
 {
@@ -47,9 +47,6 @@ class SoqlStatement implements IteratorAggregate, Statement
     /** @var string */
     protected $statement;
 
-    /** @var string[]|bool|null */
-    protected $columnNames;
-
     /** @var mixed[] */
     protected $bindedValues;
 
@@ -58,9 +55,6 @@ class SoqlStatement implements IteratorAggregate, Statement
 
     /** @var int */
     protected $defaultFetchMode = FetchMode::MIXED;
-
-    /** @var bool */
-    private $result = false;
 
     /** @var array<int, string> */
     private $paramMap;
@@ -206,8 +200,6 @@ class SoqlStatement implements IteratorAggregate, Statement
             $this->statement = str_replace($this->paramMap, $e, $this->statement);
         }
 
-        $this->result = true;
-
         return true;
     }
 
@@ -263,11 +255,6 @@ class SoqlStatement implements IteratorAggregate, Statement
             return $this->payload->getResults();
         }
 
-        $this->result = true;
-        if (! $this->result) {
-            return false;
-        }
-
         try {
             $values = $this->doFetch();
         } catch (ClientException $exception) {
@@ -282,7 +269,7 @@ class SoqlStatement implements IteratorAggregate, Statement
 
         $this->payload = $payload;
 
-        return $values;
+        return $this->payload->getResults();
     }
 
     /**
@@ -320,8 +307,6 @@ class SoqlStatement implements IteratorAggregate, Statement
     /** {@inheritdoc} */
     public function closeCursor() : bool
     {
-        $this->result = false;
-
         return true;
     }
 
@@ -332,7 +317,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritdoc} */
-    public function columnCount(): int
+    public function columnCount() : int
     {
         return $this->payload->totalSize();
     }

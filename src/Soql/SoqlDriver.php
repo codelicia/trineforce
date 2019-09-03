@@ -6,9 +6,9 @@ namespace Codelicia\Soql;
 
 use Assert\Assertion;
 use Assert\AssertionFailedException;
-use Codelicia\Soql\Factory\AccessTokenFactory;
 use Codelicia\Soql\Factory\AuthorizedClientFactory;
-use Codelicia\Soql\Factory\AuthorizedClientFactoryInterface;
+use Codelicia\Soql\Factory\HttpAccessTokenFactory;
+use Codelicia\Soql\Factory\HttpAuthorizedClientFactory;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\DriverException;
@@ -61,19 +61,23 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
         // TODO: implements specific schema manager
     }
 
-    private function getAuthorizedClientFactory($username, $password, array $params)
-    {
+    /** @param string[] $params */
+    private function getAuthorizedClientFactory(
+        string $username,
+        string $password,
+        array $params
+    ) : AuthorizedClientFactory {
         Assertion::keyExists($params, 'salesforceInstance');
         Assertion::keyExists($params, 'consumerKey');
         Assertion::keyExists($params, 'consumerSecret');
 
         if (array_key_exists('authorizedClientFactory', $params)) {
-            Assertion::isInstanceOf($params['authorizedClientFactory'], AuthorizedClientFactoryInterface::class);
+            Assertion::isInstanceOf($params['authorizedClientFactory'], AuthorizedClientFactory::class);
 
             return $params['authorizedClientFactory'];
         }
 
-        return new AuthorizedClientFactory(new AccessTokenFactory(
+        return new HttpAuthorizedClientFactory(new HttpAccessTokenFactory(
             $params['salesforceInstance'],
             $params['consumerKey'],
             $params['consumerSecret'],
