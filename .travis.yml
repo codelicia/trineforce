@@ -9,7 +9,6 @@ php:
 
 env:
   - DEPENDENCIES=""
-  - DEPENDENCIES="--prefer-lowest --prefer-stable"
   - DEPENDENCIES="--classmap-authoritative"
 
 matrix:

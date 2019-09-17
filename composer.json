@@ -10,6 +10,7 @@
         }
     ],
     "require": {
+        "php": ">=7.2",
         "beberlei/assert": "^2.3",
         "doctrine/orm": "^2.6",
         "guzzlehttp/guzzle": "^6.0",
