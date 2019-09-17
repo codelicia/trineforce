@@ -6,7 +6,7 @@ namespace Codelicia\Soql;
 
 use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Doctrine\DBAL\Driver\Connection;
-use Doctrine\DBAL\ParameterType;
+use PDO;
 use function addslashes;
 use function func_get_args;
 
@@ -38,7 +38,7 @@ class SoqlConnection implements Connection
     }
 
     /** {@inheritDoc} */
-    public function quote($input, $type = ParameterType::STRING) : string
+    public function quote($input, $type = PDO::PARAM_STR) : string
     {
         return "'" . addslashes($input) . "'";
     }
