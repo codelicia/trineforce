@@ -1,16 +1,35 @@
 {
+    "name": "codelicia/trineforce",
+    "description": "Salesforce Soql Doctrine Driver",
+    "homepage": "https://github.com/codelicia/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jefersson Nathan",
+            "email": "malukenho.dev@gmail.com"
+        }
+    ],
     "require": {
+        "php": ">=7.2",
         "beberlei/assert": "^2.3",
         "doctrine/orm": "^2.6",
         "guzzlehttp/guzzle": "^6.0",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-pdo": "*"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-master"
+        "roave/security-advisories": "dev-master",
+        "doctrine/coding-standard": "^5.0",
+        "phpunit/phpunit": "^8.3"
     },
     "autoload": {
         "psr-4": {
             "Codelicia\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CodeliciaTest\\": "tests/"
         }
     }
 }
