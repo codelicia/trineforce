@@ -49,9 +49,8 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
     }
 
     /** {@inheritdoc} */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform() : MySqlPlatform
     {
-        // TODO: implements specific platform
         return new MySqlPlatform();
     }
 
