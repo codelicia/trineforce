@@ -35,9 +35,10 @@ $connectionParams = [
     'consumerKey' => '...',
     'consumerSecret' => '...',
     'driverClass' => \Codelicia\Soql\SoqlDriver::class,
+    'wrapperClass' => \Codelicia\Soql\ConnectionWrapper::class,
 ];
 
-/** @var SoqlConnection $conn */
+/** @var \Codelicia\Soql\ConnectionWrapper $conn */
 $conn = DriverManager::getConnection($connectionParams, $config);
 ``` 
 
@@ -48,6 +49,10 @@ $conn = DriverManager::getConnection($connectionParams, $config);
 * `consumerKey` provides the integration consumer key
 * `consumerSecret` provides the integration consumer secret
 * `driverClass` should points to `\Codelicia\Soql\SoqlDriver::class`
+* `wrapperClass` should points to `\Codelicia\Soql\ConnectionWrapper::class`
+
+By setting up the `wrapperClass`, we can make use of a proper `QueryBuild` that allow
+`JOIN` in the Salesforce format.
 
 ### Using DBAL
 
@@ -57,8 +62,8 @@ query some data as bellow:
 ```php
 $id = '0062X00000vLZDVQA4';
 
-$qb = new QueryBuilder($conn);
-$sql = $qb->select(['Id', 'Name', 'Status__c'])
+$sql = $conn->createQueryBuilder()
+    ->select(['Id', 'Name', 'Status__c'])
     ->from('Opportunity')
     ->where('Id = :id')
     ->andWhere('Name = :name')
