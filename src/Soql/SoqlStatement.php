@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
+use Assert\Assertion;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -14,6 +15,7 @@ use GuzzleHttp\Exception\ClientException;
 use IteratorAggregate;
 use const PREG_OFFSET_CAPTURE;
 use function count;
+use function current;
 use function get_resource_type;
 use function implode;
 use function is_numeric;
@@ -250,6 +252,18 @@ class SoqlStatement implements IteratorAggregate, Statement
     /** {@inheritdoc} */
     public function fetch($fetchMode = null, $cursorOrientation = null, $cursorOffset = 0)
     {
+        $result = $this->fetchAll($fetchMode);
+
+        Assertion::notEmpty($result);
+
+        return current($result);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    {
         // Early return payload
         if ($this->payload !== null) {
             return $this->payload->getResults();
@@ -272,18 +286,10 @@ class SoqlStatement implements IteratorAggregate, Statement
         return $this->payload->getResults();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
-    {
-        return $this->fetch($fetchMode);
-    }
-
     /** {@inheritdoc} */
     public function fetchColumn($columnIndex = 0)
     {
-        $row = $this->fetch(FetchMode::NUMERIC);
+        $row = $this->fetchAll(FetchMode::NUMERIC);
 
         if ($row === false) {
             return false;

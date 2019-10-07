@@ -6,6 +6,7 @@ namespace Codelicia\Soql;
 
 use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Doctrine\DBAL\Driver\Connection;
+use GuzzleHttp\ClientInterface;
 use PDO;
 use function addslashes;
 use function func_get_args;
@@ -23,7 +24,12 @@ class SoqlConnection implements Connection
     /** {@inheritDoc} */
     public function prepare($prepareString) : SoqlStatement
     {
-        return new SoqlStatement($this->authorizedClientFactory->__invoke(), $prepareString);
+        return new SoqlStatement($this->getHttpClient(), $prepareString);
+    }
+
+    public function getHttpClient() : ClientInterface
+    {
+        return $this->authorizedClientFactory->__invoke();
     }
 
     /** {@inheritDoc} */
