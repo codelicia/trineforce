@@ -13,17 +13,18 @@ use Doctrine\DBAL\ParameterType;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 use IteratorAggregate;
-use function is_object;
-use function method_exists;
 use const PREG_OFFSET_CAPTURE;
 use function count;
 use function current;
 use function get_resource_type;
 use function implode;
+use function is_array;
 use function is_numeric;
+use function is_object;
 use function is_resource;
 use function is_string;
 use function json_decode;
+use function method_exists;
 use function preg_match;
 use function preg_quote;
 use function sprintf;
@@ -201,6 +202,10 @@ class SoqlStatement implements IteratorAggregate, Statement
             foreach ($values as $v) {
                 if (is_object($v) && method_exists($v, '__toString')) {
                     $v = (string) $v;
+                }
+
+                if (is_array($v)) {
+                    $v = implode("', '", $v);
                 }
 
                 $e[] = is_string($v) ? sprintf("'%s'", $v) : $v;
