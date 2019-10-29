@@ -13,6 +13,8 @@ use Doctrine\DBAL\ParameterType;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 use IteratorAggregate;
+use function is_object;
+use function method_exists;
 use const PREG_OFFSET_CAPTURE;
 use function count;
 use function current;
@@ -197,6 +199,10 @@ class SoqlStatement implements IteratorAggregate, Statement
 
             $e = [];
             foreach ($values as $v) {
+                if (is_object($v) && method_exists($v, '__toString')) {
+                    $v = (string) $v;
+                }
+
                 $e[] = is_string($v) ? sprintf("'%s'", $v) : $v;
             }
             $this->statement = str_replace($this->paramMap, $e, $this->statement);
