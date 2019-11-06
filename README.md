@@ -77,6 +77,46 @@ var_dump($sql->fetchAll()); // All rest api result
 
 or use the normal `Connection#query()` method.
 
+### Be Transactional with `Composite` API
+
+As salesforce released the `composite` api, it gave us the ability
+to simulate transactions as in a database. So, we can use the same
+Doctrine DBAL api that you already know to do transactional operations
+in your Salesforce instance.
+
+```php
+$conn->beginTransaction();
+
+$conn->insert('Account', ['Name' => 'John']);
+$conn->insert('Account', ['Name' => 'Elsa']);
+
+$conn->commit();
+```
+
+Or even, use the `Connection#transactional()` helper, as you prefer.
+
+#### Referencing another Records
+
+The `composite` api, also enables us to compose a structure data to be
+changed in one single request. So we can cross reference records as it
+fits our needs.
+
+Let's see how to create an `Account` and a linked `Contact` to that `Account`
+in a single `composite` request.
+
+```php
+$conn->transactional(static function () use ($conn) {
+
+    $conn->insert('Account', ['Name' => 'John'], ['referenceId' => 'account']);
+    $conn->insert('Contact', [
+        'FirstName' => 'John',
+        'LastName' => 'Contact',
+        'AccountId' => '@{account.id}' // reference `Account` by its `referenceId`
+    ]);
+
+});
+```
+
 ### Author
 
 - Jefersson Nathan ([@malukenho](http://github.com/malukenho))
