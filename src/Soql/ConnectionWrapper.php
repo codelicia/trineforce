@@ -9,6 +9,7 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use GuzzleHttp\ClientInterface;
 use Webmozart\Assert\Assert;
+use function array_filter;
 use function array_key_exists;
 use function array_map;
 use function array_merge;
@@ -18,7 +19,6 @@ use function json_encode;
 use function key;
 use function sprintf;
 use function uniqid;
-use function var_dump;
 
 class ConnectionWrapper extends Connection
 {
@@ -151,9 +151,19 @@ class ConnectionWrapper extends Connection
             ['body' => json_encode($this->compositeList())]
         );
 
-        // TODO: how to assert on errors properly?
         $responseBody = json_decode($response->getBody()->getContents(), true);
-        var_dump($responseBody);
+
+        $errors = array_filter(array_map(static function ($payload) : array {
+            if (isset($payload['body'][0]['errorCode'])) {
+                return [$payload['body'][0]['message']];
+            }
+
+            return [];
+        }, $responseBody['compositeResponse']));
+
+        if ($errors !== []) {
+            throw OperationFailed::transactionFailed($errors);
+        }
     }
 
     public function rollBack() : void
@@ -167,7 +177,7 @@ class ConnectionWrapper extends Connection
     {
         return [
             'allOrNone'        => true,
-            'compositeRequest' => array_map(static function (array $subRequest) {
+            'compositeRequest' => array_map(static function (array $subRequest) : array {
                 return array_key_exists('referenceId', $subRequest)
                     ? $subRequest
                     : array_merge($subRequest, ['referenceId' => uniqid('referenceId', false)]);
