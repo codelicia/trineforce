@@ -77,6 +77,31 @@ var_dump($sql->fetchAll()); // All rest api result
 
 or use the normal `Connection#query()` method.
 
+### Basic Operations
+
+Here are some examples of basic `CRUD` operations.
+
+#### `Connection#insert()`
+
+Creating an `Account` with the `Name` of `John`:
+```php
+$connection->insert('Account', ['Name' => 'John']);
+```
+
+#### `Connection#delete()`
+
+Deleting an `Account` with the `Id` = `1234`:
+```php
+$connection->delete('Account', ['Id' => '1234']);
+```
+
+#### `Connection#update()`
+
+Update an `Account` with the `Name` of `Sr. John` where the `Id` is `1234`:
+```php
+$connection->update('Account', ['Name' => 'Sr. John'], ['Id' => '1234']);
+```
+
 ### Be Transactional with `Composite` API
 
 As salesforce released the `composite` api, it gave us the ability
