@@ -8,7 +8,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Psr7\Request;
 use Webmozart\Assert\Assert;
 use function array_key_exists;
 use function array_map;
@@ -23,11 +22,14 @@ use function var_dump;
 
 class ConnectionWrapper extends Connection
 {
-    private const SERVICE_OBJECT_URL = '/services/data/v43.0/sobjects/%s';
+    private const SERVICE_OBJECT_URL    = '/services/data/v43.0/sobjects/%s';
     private const SERVICE_OBJECT_ID_URL = '/services/data/v43.0/sobjects/%s/%s';
     private const SERVICE_COMPOSITE_URL = '/services/data/v43.0/composite';
 
+    /** @var int */
     private $transactionalLevel = 0;
+
+    /** @var mixed[] */
     private $batchList = [];
 
     public function createQueryBuilder() : QueryBuilder
@@ -74,11 +76,9 @@ class ConnectionWrapper extends Connection
 
         $responseBody = json_decode($response->getBody()->getContents(), true);
 
-        // TODO: use specific exception here
-        Assert::true(
-            $responseBody['success'] ?? false,
-            sprintf('Insert failed with payload %s', json_encode($data))
-        );
+        if ($responseBody['success'] !== true) {
+            throw OperationFailed::insertFailed($data);
+        }
     }
 
     /** {@inheritDoc} */
@@ -98,14 +98,17 @@ class ConnectionWrapper extends Connection
         $response = $http->request('PATCH', $url, ['body' => json_encode($data)]);
 
         $responseBody = json_decode($response->getBody()->getContents(), true);
-        // TODO: use specific exception here
-        Assert::true(
-            $responseBody['success'] ?? false,
-            sprintf('Insert failed with payload %s', json_encode($data))
-        );
+
+        if ($responseBody['success'] !== true) {
+            throw OperationFailed::updateFailed($data);
+        }
     }
 
-    private function addToBatchList($method, $url, array $data, array $refs) : void
+    /**
+     * @param mixed[] $data
+     * @param mixed[] $refs
+     */
+    private function addToBatchList(string $method, string $url, array $data, array $refs) : void
     {
         $command = ['method' => $method, 'url' => $url, 'body' => $data];
 
@@ -136,20 +139,30 @@ class ConnectionWrapper extends Connection
 
         --$this->transactionalLevel;
 
-        if ($this->transactionalLevel === 0) {
-            $http = $this->getHttpClient();
-
-            $response = $http->request(
-                'POST',
-                self::SERVICE_COMPOSITE_URL,
-                ['body' => json_encode($this->compositeList())]
-            );
-
-            // TODO: how to assert on errors properly?
-            $responseBody = json_decode($response->getBody()->getContents(), true);
+        if ($this->transactionalLevel !== 0) {
+            return;
         }
+
+        $http = $this->getHttpClient();
+
+        $response = $http->request(
+            'POST',
+            self::SERVICE_COMPOSITE_URL,
+            ['body' => json_encode($this->compositeList())]
+        );
+
+        // TODO: how to assert on errors properly?
+        $responseBody = json_decode($response->getBody()->getContents(), true);
+        var_dump($responseBody);
     }
 
+    public function rollBack() : void
+    {
+        $this->transactionalLevel = 0;
+        $this->batchList          = [];
+    }
+
+    /** @return mixed[] */
     private function compositeList() : array
     {
         return [
