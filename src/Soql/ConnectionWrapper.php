@@ -97,9 +97,7 @@ class ConnectionWrapper extends Connection
 
         $response = $http->request('PATCH', $url, ['body' => json_encode($data)]);
 
-        $responseBody = json_decode($response->getBody()->getContents(), true);
-
-        if ($responseBody['success'] !== true) {
+        if ($response->getStatusCode() !== 204) {
             throw OperationFailed::updateFailed($data);
         }
     }
