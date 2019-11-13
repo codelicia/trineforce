@@ -30,6 +30,7 @@ final class HttpAuthorizedClientFactory implements AuthorizedClientFactory
                 'Authorization' => sprintf('Bearer %s', $this->accessTokenFactory->__invoke()),
                 'X-PrettyPrint' => '1',
                 'Content-Type' => 'application/json',
+                'Sforce-Auto-Assign' => 'FALSE',
             ],
         ]);
     }
