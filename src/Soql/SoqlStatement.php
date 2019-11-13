@@ -145,6 +145,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     {
         if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
             $offset = $matches[0][1];
+
             return $matches[0][0];
         }
 
