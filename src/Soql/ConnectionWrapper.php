@@ -185,7 +185,10 @@ class ConnectionWrapper extends Connection
             'compositeRequest' => array_map(static function (array $subRequest) : array {
                 return array_key_exists('referenceId', $subRequest)
                     ? $subRequest
-                    : array_merge($subRequest, ['referenceId' => uniqid('referenceId', false)]);
+                    : array_merge($subRequest, [
+                        'referenceId' => uniqid('referenceId', false),
+                        'httpHeaders' => ['Sforce-Auto-Assign' => 'FALSE'],
+                    ]);
             }, $this->batchList),
         ];
     }
