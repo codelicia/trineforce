@@ -151,6 +151,8 @@ class ConnectionWrapper extends Connection
 
         $responseBody = json_decode($response->getBody()->getContents(), true);
 
+        $this->resetBatchListAndTransactionLevel();
+
         $errors = array_filter(array_map(static function ($payload) : array {
             if (isset($payload['body'][0]['errorCode'])) {
                 return [$payload['body'][0]['message']];
@@ -165,6 +167,11 @@ class ConnectionWrapper extends Connection
     }
 
     public function rollBack() : void
+    {
+        $this->resetBatchListAndTransactionLevel();
+    }
+
+    private function resetBatchListAndTransactionLevel() : void
     {
         $this->transactionalLevel = 0;
         $this->batchList          = [];
