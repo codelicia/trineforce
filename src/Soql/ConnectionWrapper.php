@@ -8,6 +8,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use Webmozart\Assert\Assert;
 use function array_filter;
 use function array_key_exists;
@@ -44,8 +46,6 @@ class ConnectionWrapper extends Connection
             throw InvalidArgumentException::fromEmptyCriteria();
         }
 
-        $http = $this->getHttpClient();
-
         if (count($identifier) > 1) {
             throw InvalidArgumentException::notSupported('It should have only one DELETE criteria.');
         }
@@ -55,27 +55,32 @@ class ConnectionWrapper extends Connection
         }
 
         $param = $identifier['Id'] ?? (key($identifier) . '/' . $identifier[key($identifier)]);
-
-        $http->request('DELETE', sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param));
+        $this->send(new Request(
+            'DELETE',
+            sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param)
+        ));
     }
 
     /** {@inheritDoc} */
     public function insert($tableExpression, array $data, array $refs = [])
     {
-        $http = $this->getHttpClient();
-
-        $url = sprintf(self::SERVICE_OBJECT_URL, $tableExpression);
+        $request = new Request(
+            'POST',
+            sprintf(self::SERVICE_OBJECT_URL, $tableExpression),
+            [],
+            json_encode($data)
+        );
 
         if ($this->isTransactionActive()) {
-            $this->addToBatchList('POST', $url, $data, $refs);
+            $this->addToBatchList($request, $refs);
 
             return;
         }
 
-        $response = $http->request('POST', $url, ['body' => json_encode($data)]);
-
+        $response     = $this->send($request);
         $responseBody = json_decode($response->getBody()->getContents(), true);
 
+        var_dump($responseBody['success']);
         if ($responseBody['success'] !== true) {
             throw OperationFailed::insertFailed($data);
         }
@@ -84,18 +89,22 @@ class ConnectionWrapper extends Connection
     /** {@inheritDoc} */
     public function update($tableExpression, array $data, array $identifier = [], array $refs = [])
     {
-        $http = $this->getHttpClient();
-
         $param = $identifier['Id'] ?? (key($identifier) . '/' . $identifier[key($identifier)]);
-        $url   = sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param);
+
+        $request = new Request(
+            'PATCH',
+            sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param),
+            [],
+            json_encode($data)
+        );
 
         if ($this->isTransactionActive()) {
-            $this->addToBatchList('PATCH', $url, $data, $refs);
+            $this->addToBatchList($request, $refs);
 
             return;
         }
 
-        $response = $http->request('PATCH', $url, ['body' => json_encode($data)]);
+        $response = $this->send($request);
 
         if ($response->getStatusCode() !== 204) {
             throw OperationFailed::updateFailed($data);
@@ -103,12 +112,15 @@ class ConnectionWrapper extends Connection
     }
 
     /**
-     * @param mixed[] $data
      * @param mixed[] $refs
      */
-    private function addToBatchList(string $method, string $url, array $data, array $refs) : void
+    private function addToBatchList(Request $request, array $refs) : void
     {
-        $command = ['method' => $method, 'url' => $url, 'body' => $data];
+        $command = [
+            'body' => $request->getBody()->getContents(),
+            'method' => $request->getMethod(),
+            'url' => $request->getUri(),
+        ];
 
         if ($refs !== []) {
             Assert::keyExists($refs, 'referenceId');
@@ -141,13 +153,12 @@ class ConnectionWrapper extends Connection
             return;
         }
 
-        $http = $this->getHttpClient();
-
-        $response = $http->request(
+        $response = $this->send(new Request(
             'POST',
             self::SERVICE_COMPOSITE_URL,
-            ['body' => json_encode($this->compositeList())]
-        );
+            [],
+            json_encode($this->compositeList())
+        ));
 
         $responseBody = json_decode($response->getBody()->getContents(), true);
 
@@ -191,6 +202,36 @@ class ConnectionWrapper extends Connection
                     ]);
             }, $this->batchList),
         ];
+    }
+
+    private function send(Request $request) : Response
+    {
+        $logger = $this->_config->getSQLLogger();
+        $http   = $this->getHttpClient();
+
+        if ($logger) {
+            $logger->startQuery(json_encode([
+                'request' => [
+                    'method' => $request->getMethod(),
+                    'uri'    => (string) $request->getUri(),
+                    'header' => json_encode($request->getHeaders()),
+                ],
+            ]));
+        }
+
+        $response = $http->send($request);
+
+        if ($logger) {
+            $logger->startQuery(json_encode([
+                'response' => [
+                    'statusCode' => $response->getStatusCode(),
+                    'header'     => json_encode($response->getHeaders()),
+                ],
+            ]));
+            $logger->stopQuery();
+        }
+
+        return $response;
     }
 
     private function getHttpClient() : ClientInterface
