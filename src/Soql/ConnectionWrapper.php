@@ -118,9 +118,9 @@ class ConnectionWrapper extends Connection
     private function addToBatchList(Request $request, array $refs) : void
     {
         $command = [
-            'body' => $request->getBody()->getContents(),
+            'body' => json_decode($request->getBody()->getContents(), true),
             'method' => $request->getMethod(),
-            'url' => $request->getUri(),
+            'url' => (string) $request->getUri(),
         ];
 
         if ($refs !== []) {
@@ -218,7 +218,7 @@ class ConnectionWrapper extends Connection
                     'method'    => $request->getMethod(),
                     'uri'       => (string) $request->getUri(),
                     'header'    => $request->getHeaders(),
-                    'body'      => json_decode($request->getBody()->getContents()),
+                    'body'      => json_decode($request->getBody()->getContents(), true),
                 ],
             ], JSON_PRETTY_PRINT));
         }
@@ -233,7 +233,7 @@ class ConnectionWrapper extends Connection
                     'requestId'  => $requestId,
                     'statusCode' => $response->getStatusCode(),
                     'header'     => $response->getHeaders(),
-                    'body'       => json_decode($response->getBody()->getContents()),
+                    'body'       => json_decode($response->getBody()->getContents(), true),
                 ],
             ], JSON_PRETTY_PRINT));
             $logger->stopQuery();
