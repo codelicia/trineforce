@@ -22,6 +22,7 @@ use function json_encode;
 use function key;
 use function sprintf;
 use function uniqid;
+use const JSON_PRETTY_PRINT;
 
 class ConnectionWrapper extends Connection
 {
@@ -214,10 +215,10 @@ class ConnectionWrapper extends Connection
                 'request' => [
                     'method' => $request->getMethod(),
                     'uri'    => (string) $request->getUri(),
-                    'header' => json_encode($request->getHeaders()),
-                    'body'   => json_encode($request->getBody()->getContents()),
+                    'header' => $request->getHeaders(),
+                    'body'   => json_decode($request->getBody()->getContents()),
                 ],
-            ]));
+            ], JSON_PRETTY_PRINT));
         }
 
         $request->getBody()->rewind();
@@ -228,10 +229,10 @@ class ConnectionWrapper extends Connection
             $logger->startQuery(json_encode([
                 'response' => [
                     'statusCode' => $response->getStatusCode(),
-                    'header'     => json_encode($response->getHeaders()),
-                    'body'       => $response->getBody()->getContents(),
+                    'header'     => $response->getHeaders(),
+                    'body'       => json_decode($response->getBody()->getContents()),
                 ],
-            ]));
+            ], JSON_PRETTY_PRINT));
             $logger->stopQuery();
         }
 
