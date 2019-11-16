@@ -20,7 +20,8 @@
     "require-dev": {
         "roave/security-advisories": "dev-master",
         "doctrine/coding-standard": "^6.0",
-        "phpunit/phpunit": "^8.3"
+        "phpunit/phpunit": "^8.3",
+        "symplify/changelog-linker": "^6.1"
     },
     "autoload": {
         "psr-4": {
