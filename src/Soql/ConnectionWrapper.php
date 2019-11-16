@@ -12,6 +12,7 @@ use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Webmozart\Assert\Assert;
+use const JSON_PRETTY_PRINT;
 use function array_filter;
 use function array_key_exists;
 use function array_map;
@@ -22,7 +23,6 @@ use function json_encode;
 use function key;
 use function sprintf;
 use function uniqid;
-use const JSON_PRETTY_PRINT;
 
 class ConnectionWrapper extends Connection
 {
@@ -207,16 +207,18 @@ class ConnectionWrapper extends Connection
 
     private function send(RequestInterface $request) : ResponseInterface
     {
-        $logger = $this->_config->getSQLLogger();
-        $http   = $this->getHttpClient();
+        $requestId = uniqid('requestId', false);
+        $logger    = $this->_config->getSQLLogger();
+        $http      = $this->getHttpClient();
 
         if ($logger) {
             $logger->startQuery(json_encode([
                 'request' => [
-                    'method' => $request->getMethod(),
-                    'uri'    => (string) $request->getUri(),
-                    'header' => $request->getHeaders(),
-                    'body'   => json_decode($request->getBody()->getContents()),
+                    'requestId' => $requestId,
+                    'method'    => $request->getMethod(),
+                    'uri'       => (string) $request->getUri(),
+                    'header'    => $request->getHeaders(),
+                    'body'      => json_decode($request->getBody()->getContents()),
                 ],
             ], JSON_PRETTY_PRINT));
         }
@@ -228,6 +230,7 @@ class ConnectionWrapper extends Connection
         if ($logger) {
             $logger->startQuery(json_encode([
                 'response' => [
+                    'requestId'  => $requestId,
                     'statusCode' => $response->getStatusCode(),
                     'header'     => $response->getHeaders(),
                     'body'       => json_decode($response->getBody()->getContents()),
