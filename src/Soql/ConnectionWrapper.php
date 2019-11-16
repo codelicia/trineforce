@@ -215,9 +215,12 @@ class ConnectionWrapper extends Connection
                     'method' => $request->getMethod(),
                     'uri'    => (string) $request->getUri(),
                     'header' => json_encode($request->getHeaders()),
+                    'body'   => json_encode($request->getBody()->getContents()),
                 ],
             ]));
         }
+
+        $request->getBody()->rewind();
 
         $response = $http->send($request);
 
