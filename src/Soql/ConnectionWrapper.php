@@ -9,7 +9,8 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Webmozart\Assert\Assert;
 use function array_filter;
 use function array_key_exists;
@@ -80,7 +81,6 @@ class ConnectionWrapper extends Connection
         $response     = $this->send($request);
         $responseBody = json_decode($response->getBody()->getContents(), true);
 
-        var_dump($responseBody['success']);
         if ($responseBody['success'] !== true) {
             throw OperationFailed::insertFailed($data);
         }
@@ -204,7 +204,7 @@ class ConnectionWrapper extends Connection
         ];
     }
 
-    private function send(Request $request) : Response
+    private function send(RequestInterface $request) : ResponseInterface
     {
         $logger = $this->_config->getSQLLogger();
         $http   = $this->getHttpClient();
@@ -226,10 +226,13 @@ class ConnectionWrapper extends Connection
                 'response' => [
                     'statusCode' => $response->getStatusCode(),
                     'header'     => json_encode($response->getHeaders()),
+                    'body'       => $response->getBody()->getContents(),
                 ],
             ]));
             $logger->stopQuery();
         }
+
+        $response->getBody()->rewind();
 
         return $response;
     }
