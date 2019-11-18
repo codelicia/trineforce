@@ -2,6 +2,15 @@
 
 <!-- dumped content start -->
 
+## Unreleased
+
+- [#16] composer req symplify/changelog-linker --dev, Thanks to [@malukenho]
+- [#15] Enable SQL Logger, Thanks to [@EHER]
+
+<!-- dumped content end -->
+
+<!-- dumped content start -->
+
 ## [0.0.7]
 
 - [#12] Disable "Sforce-Auto-Assign" by default, Thanks to [@malukenho]
@@ -49,3 +58,6 @@
 [0.0.4]: https://github.com/codelicia/trineforce/compare/0.0.3...0.0.4
 [0.0.3]: https://github.com/codelicia/trineforce/compare/0.0.2...0.0.3
 [0.0.2]: https://github.com/codelicia/trineforce/compare/0.0.1...0.0.2
+[#16]: https://github.com/codelicia/trineforce/pull/16
+[#15]: https://github.com/codelicia/trineforce/pull/15
+[@EHER]: https://github.com/EHER
