@@ -13,7 +13,6 @@ use Doctrine\DBAL\ParameterType;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 use IteratorAggregate;
-use const PREG_OFFSET_CAPTURE;
 use function count;
 use function current;
 use function get_resource_type;
@@ -30,11 +29,12 @@ use function preg_quote;
 use function sprintf;
 use function str_replace;
 use function substr;
+use const PREG_OFFSET_CAPTURE;
 
 class SoqlStatement implements IteratorAggregate, Statement
 {
     /** @var string[] */
-    protected static $paramTypeMap = [
+    protected static array $paramTypeMap = [
         ParameterType::STRING => 's',
         ParameterType::BINARY => 's',
         ParameterType::BOOLEAN => 'i',
@@ -43,26 +43,21 @@ class SoqlStatement implements IteratorAggregate, Statement
         ParameterType::LARGE_OBJECT => 'b',
     ];
 
-    /** @var Payload|null */
-    protected $payload;
+    protected ?Payload $payload = null;
 
-    /** @var ClientInterface */
-    protected $connection;
+    protected ClientInterface $connection;
 
-    /** @var string */
-    protected $statement;
+    protected string $statement;
 
     /** @var mixed[] */
-    protected $bindedValues;
+    protected array $bindedValues;
 
-    /** @var string */
-    protected $types;
+    protected string $types;
 
-    /** @var int */
-    protected $defaultFetchMode = FetchMode::MIXED;
+    protected int $defaultFetchMode = FetchMode::MIXED;
 
     /** @var array<int, string> */
-    private $paramMap;
+    private array $paramMap;
 
     public function __construct(ClientInterface $connection, string $prepareString)
     {
@@ -211,6 +206,7 @@ class SoqlStatement implements IteratorAggregate, Statement
 
                 $e[] = is_string($v) ? sprintf("'%s'", $v) : $v;
             }
+
             $this->statement = str_replace($this->paramMap, $e, $this->statement);
         }
 
@@ -239,6 +235,7 @@ class SoqlStatement implements IteratorAggregate, Statement
                             'Resources passed with the LARGE_OBJECT parameter type must be stream resources.'
                         );
                     }
+
                     $values[$parameter] = null;
                     continue;
                 }

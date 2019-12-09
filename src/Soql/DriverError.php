@@ -10,8 +10,7 @@ use Exception;
 
 class DriverError extends DBALException
 {
-    /** @var DriverException */
-    private $driverException;
+    private DriverException $driverException;
 
     /** {@inheritDoc} */
     public function __construct($message, DriverException $driverException)

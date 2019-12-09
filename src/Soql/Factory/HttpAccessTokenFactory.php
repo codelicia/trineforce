@@ -10,20 +10,15 @@ use function json_decode;
 
 final class HttpAccessTokenFactory implements AccessTokenFactory
 {
-    /** @var string */
-    private $salesforceInstance;
+    private string $salesforceInstance;
 
-    /** @var string */
-    private $consumerKey;
+    private string $consumerKey;
 
-    /** @var string */
-    private $consumerSecret;
+    private string $consumerSecret;
 
-    /** @var string */
-    private $username;
+    private string $username;
 
-    /** @var string */
-    private $password;
+    private string $password;
 
     public function __construct(
         string $salesforceInstance,

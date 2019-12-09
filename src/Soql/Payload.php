@@ -8,20 +8,16 @@ use function array_map as map;
 
 final class Payload
 {
-    /** @var bool */
-    private $success;
+    private bool $success;
 
-    /** @var int */
-    private $totalSize;
+    private int $totalSize;
 
     /** @var mixed[][] */
-    private $values;
+    private array $values;
 
-    /** @var string|null */
-    private $errorMessage;
+    private ?string $errorMessage = null;
 
-    /** @var string|null */
-    private $errorCode;
+    private ?string $errorCode = null;
 
     /** @param mixed[] $values */
     public function __construct(
