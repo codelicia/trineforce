@@ -13,8 +13,7 @@ use function func_get_args;
 
 class SoqlConnection implements Connection
 {
-    /** @var AuthorizedClientFactory */
-    private $authorizedClientFactory;
+    private AuthorizedClientFactory $authorizedClientFactory;
 
     public function __construct(AuthorizedClientFactory $authorizedClientFactory)
     {

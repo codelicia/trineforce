@@ -12,7 +12,6 @@ use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Webmozart\Assert\Assert;
-use const JSON_PRETTY_PRINT;
 use function array_filter;
 use function array_key_exists;
 use function array_map;
@@ -23,6 +22,7 @@ use function json_encode;
 use function key;
 use function sprintf;
 use function uniqid;
+use const JSON_PRETTY_PRINT;
 
 class ConnectionWrapper extends Connection
 {
@@ -30,11 +30,10 @@ class ConnectionWrapper extends Connection
     private const SERVICE_OBJECT_ID_URL = '/services/data/v43.0/sobjects/%s/%s';
     private const SERVICE_COMPOSITE_URL = '/services/data/v43.0/composite';
 
-    /** @var int */
-    private $transactionalLevel = 0;
+    private int $transactionalLevel = 0;
 
     /** @var mixed[] */
-    private $batchList = [];
+    private array $batchList = [];
 
     public function createQueryBuilder() : QueryBuilder
     {

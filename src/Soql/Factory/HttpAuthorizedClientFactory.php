@@ -10,11 +10,9 @@ use function sprintf;
 
 final class HttpAuthorizedClientFactory implements AuthorizedClientFactory
 {
-    /** @var AccessTokenFactory */
-    private $accessTokenFactory;
+    private AccessTokenFactory $accessTokenFactory;
 
-    /** @var string */
-    private $salesforceInstance;
+    private string $salesforceInstance;
 
     public function __construct(AccessTokenFactory $accessTokenFactory, string $salesforceInstance)
     {
