@@ -52,7 +52,8 @@ class SoqlStatement implements IteratorAggregate, Statement
     /** @var mixed[] */
     protected array $bindedValues;
 
-    protected string $types;
+    /** @var string[] */
+    protected array $types;
 
     protected int $defaultFetchMode = FetchMode::MIXED;
 
@@ -63,6 +64,8 @@ class SoqlStatement implements IteratorAggregate, Statement
     {
         $this->connection                   = $connection;
         [$this->statement, $this->paramMap] = self::convertPositionalToNamedPlaceholders($prepareString);
+        $this->bindedValues                 = [];
+        $this->types                        = [];
     }
 
     /** @return string[]|mixed[][] */
