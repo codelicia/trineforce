@@ -20,6 +20,8 @@ final class HttpAccessTokenFactory implements AccessTokenFactory
 
     private string $password;
 
+    private ?string $accessToken;
+
     public function __construct(
         string $salesforceInstance,
         string $consumerKey,
@@ -32,10 +34,15 @@ final class HttpAccessTokenFactory implements AccessTokenFactory
         $this->consumerSecret     = $consumerSecret;
         $this->username           = $username;
         $this->password           = $password;
+        $this->accessToken        = null;
     }
 
     public function __invoke(?ClientInterface $client = null) : string
     {
+        if ($this->accessToken !== null) {
+            return $this->accessToken;
+        }
+
         $client = $client ?: new Client(['base_uri' => $this->salesforceInstance]);
 
         $options = [
@@ -48,9 +55,9 @@ final class HttpAccessTokenFactory implements AccessTokenFactory
             ],
         ];
 
-        $request      = $client->post('/services/oauth2/token', $options);
-        $authResponse = json_decode($request->getBody()->getContents(), true);
+        $response     = $client->request('POST', '/services/oauth2/token', $options);
+        $authResponse = json_decode($response->getBody()->getContents(), true);
 
-        return $authResponse['access_token'];
+        return $this->accessToken = $authResponse['access_token'];
     }
 }
