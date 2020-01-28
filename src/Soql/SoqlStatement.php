@@ -13,6 +13,7 @@ use Doctrine\DBAL\ParameterType;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 use IteratorAggregate;
+use const PREG_OFFSET_CAPTURE;
 use function count;
 use function current;
 use function get_resource_type;
@@ -29,7 +30,6 @@ use function preg_quote;
 use function sprintf;
 use function str_replace;
 use function substr;
-use const PREG_OFFSET_CAPTURE;
 
 class SoqlStatement implements IteratorAggregate, Statement
 {

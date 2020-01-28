@@ -1,0 +1,27 @@
+{
+    "compositeResponse": [
+        {
+            "body": [
+                {
+                    "message": "duplicate value found: ExternalId__c duplicates value on record with id: 0010E00000eg3gH",
+                    "errorCode": "DUPLICATE_VALUE",
+                    "fields": []
+                }
+            ],
+            "httpHeaders": [],
+            "httpStatusCode": 400,
+            "referenceId": "account"
+        },
+        {
+            "body": [
+                {
+                    "errorCode": "PROCESSING_HALTED",
+                    "message": "The transaction was rolled back since another operation in the same transaction failed."
+                }
+            ],
+            "httpHeaders": [],
+            "httpStatusCode": 400,
+            "referenceId": "account"
+        }
+    ]
+}
