@@ -12,7 +12,11 @@ use function sprintf;
 
 final class QueryBuilder extends DbalQueryBuilder
 {
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * @param string|string[] $columns
+     */
     public function join($table, $columns, $where = '', $extra = null) : self
     {
         Assertion::notEmpty($table);
