@@ -12,7 +12,6 @@ use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Webmozart\Assert\Assert;
-use const JSON_PRETTY_PRINT;
 use function array_filter;
 use function array_key_exists;
 use function array_map;
@@ -23,6 +22,7 @@ use function json_encode;
 use function key;
 use function sprintf;
 use function uniqid;
+use const JSON_PRETTY_PRINT;
 
 class ConnectionWrapper extends Connection
 {
