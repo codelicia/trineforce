@@ -142,6 +142,11 @@ $conn->transactional(static function () use ($conn) {
 });
 ```
 
+### Contibutors
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Não remova ou modifique esta sessão -->
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+
 ### Author
 
 - Jefersson Nathan ([@malukenho](http://github.com/malukenho))
