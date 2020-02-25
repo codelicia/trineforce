@@ -155,7 +155,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="https://twitter.com/malukenho"><img src="https://avatars2.githubusercontent.com/u/3275172?v=4" width="100px;" alt=""/><br /><sub><b>Jefersson Nathan</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/commits?author=malukenho" title="Code">💻</a></td>
+    <td align="center"><a href="https://twitter.com/malukenho"><img src="https://avatars2.githubusercontent.com/u/3275172?v=4" width="100px;" alt=""/><br /><sub><b>Jefersson Nathan</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/commits?author=malukenho" title="Code">💻</a> <a href="#maintenance-malukenho" title="Maintenance">🚧</a></td>
     <td align="center"><a href="http://eher.com.br"><img src="https://avatars0.githubusercontent.com/u/398034?v=4" width="100px;" alt=""/><br /><sub><b>Alexandre Eher</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/commits?author=eher" title="Code">💻</a></td>
   </tr>
 </table>
