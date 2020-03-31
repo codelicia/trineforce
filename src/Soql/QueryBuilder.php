@@ -8,7 +8,9 @@ use Assert\Assertion;
 use BadMethodCallException;
 use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilder;
 use function implode;
+use function is_string;
 use function sprintf;
+use function urlencode;
 
 final class QueryBuilder extends DbalQueryBuilder
 {
@@ -31,6 +33,16 @@ final class QueryBuilder extends DbalQueryBuilder
         );
 
         return $this->addSelect($query);
+    }
+
+    /** {@inheritDoc} */
+    public function setParameter($key, $value, $type = null)
+    {
+        if (is_string($value)) {
+            $value = urlencode($value);
+        }
+
+        return parent::setParameter($key, $value, $type);
     }
 
     /** {@inheritDoc} */

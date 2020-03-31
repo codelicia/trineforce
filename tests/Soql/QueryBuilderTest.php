@@ -51,6 +51,25 @@ final class QueryBuilderTest extends TestCase
     }
 
     /** @test */
+    public function it_should_urlencode_string_parameters() : void
+    {
+        $phone = '+(000) 0000-0000';
+        $queryBuilder = (new QueryBuilder($this->createMock(Connection::class)))
+            ->setParameter('phone', $phone);
+
+        self::assertSame(urlencode($phone), $queryBuilder->getParameter('phone'));
+    }
+
+    /** @test */
+    public function it_should_not_urlencode_non_string_parameters() : void
+    {
+        $queryBuilder = (new QueryBuilder($this->createMock(Connection::class)))
+            ->setParameter('age', 12);
+
+        self::assertSame(12, $queryBuilder->getParameter('age'));
+    }
+
+    /** @test */
     public function it_should_deny_left_join_method_call() : void
     {
         $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
