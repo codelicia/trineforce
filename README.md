@@ -145,7 +145,7 @@ $conn->transactional(static function () use ($conn) {
 ### Contributors ✨
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
@@ -159,6 +159,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="http://eher.com.br"><img src="https://avatars0.githubusercontent.com/u/398034?v=4" width="100px;" alt=""/><br /><sub><b>Alexandre Eher</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/commits?author=eher" title="Code">💻</a></td>
     <td align="center"><a href="https://airton.dev"><img src="https://avatars1.githubusercontent.com/u/6540546?v=4" width="100px;" alt=""/><br /><sub><b>Airton Zanon</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/pulls?q=is%3Apr+reviewed-by%3Aairtonzanon" title="Reviewed Pull Requests">👀</a></td>
     <td align="center"><a href="https://github.com/wpeereboom"><img src="https://avatars1.githubusercontent.com/u/516326?v=4" width="100px;" alt=""/><br /><sub><b>Winfred Peereboom</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/issues?q=author%3Awpeereboom" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/batusa"><img src="https://avatars3.githubusercontent.com/u/5388003?v=4" width="100px;" alt=""/><br /><sub><b>Emmerson Siqueira</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/pulls?q=is%3Apr+reviewed-by%3Abatusa" title="Reviewed Pull Requests">👀</a></td>
   </tr>
 </table>
 
