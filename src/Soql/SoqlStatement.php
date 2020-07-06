@@ -13,6 +13,7 @@ use Doctrine\DBAL\ParameterType;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 use IteratorAggregate;
+
 use function count;
 use function current;
 use function get_resource_type;
@@ -29,6 +30,7 @@ use function preg_quote;
 use function sprintf;
 use function str_replace;
 use function substr;
+
 use const PREG_OFFSET_CAPTURE;
 
 class SoqlStatement implements IteratorAggregate, Statement
@@ -69,7 +71,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** @return string[]|mixed[][] */
-    public static function convertPositionalToNamedPlaceholders(string $statement) : array
+    public static function convertPositionalToNamedPlaceholders(string $statement): array
     {
         $fragmentOffset          = $tokenOffset = 0;
         $fragments               = $paramMap = [];
@@ -114,7 +116,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         array &$fragments,
         ?string &$currentLiteralDelimiter,
         array &$paramMap
-    ) : bool {
+    ): bool {
         $token = self::findToken($statement, $tokenOffset, '/[?\'"]/');
 
         if (! $token) {
@@ -139,7 +141,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         return true;
     }
 
-    private static function findToken(string $statement, int &$offset, string $regex) : ?string
+    private static function findToken(string $statement, int &$offset, string $regex): ?string
     {
         if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
             $offset = $matches[0][1];
@@ -154,7 +156,7 @@ class SoqlStatement implements IteratorAggregate, Statement
         string $statement,
         int &$tokenOffset,
         ?string &$currentLiteralDelimiter
-    ) : bool {
+    ): bool {
         $token = self::findToken(
             $statement,
             $tokenOffset,
@@ -171,13 +173,13 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritDoc} */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null) : bool
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null): bool
     {
         return $this->bindValue($column, $variable, $type);
     }
 
     /** {@inheritDoci} */
-    public function bindValue($param, $value, $type = ParameterType::STRING) : bool
+    public function bindValue($param, $value, $type = ParameterType::STRING): bool
     {
         if (! is_numeric($param)) {
             throw new SoqlError(
@@ -192,7 +194,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritdoc} */
-    public function execute($params = null) : bool
+    public function execute($params = null): bool
     {
         if ($this->bindedValues !== null) {
             $values = $this->separateBoundValues();
@@ -221,7 +223,7 @@ class SoqlStatement implements IteratorAggregate, Statement
      *
      * @throws InvalidArgumentException
      */
-    private function separateBoundValues() : array
+    private function separateBoundValues(): array
     {
         $values = [];
         $types  = $this->types;
@@ -323,25 +325,25 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritdoc} */
-    public function closeCursor() : bool
+    public function closeCursor(): bool
     {
         return true;
     }
 
     /** {@inheritdoc} */
-    public function rowCount() : int
+    public function rowCount(): int
     {
         return $this->payload->totalSize();
     }
 
     /** {@inheritdoc} */
-    public function columnCount() : int
+    public function columnCount(): int
     {
         return $this->payload->totalSize();
     }
 
     /** {@inheritdoc} */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null) : bool
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null): bool
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -349,7 +351,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritdoc} */
-    public function getIterator() : StatementIterator
+    public function getIterator(): StatementIterator
     {
         return new StatementIterator($this);
     }

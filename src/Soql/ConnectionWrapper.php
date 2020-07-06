@@ -12,6 +12,7 @@ use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Webmozart\Assert\Assert;
+
 use function array_filter;
 use function array_key_exists;
 use function array_map;
@@ -22,6 +23,7 @@ use function json_encode;
 use function key;
 use function sprintf;
 use function uniqid;
+
 use const JSON_PRETTY_PRINT;
 
 class ConnectionWrapper extends Connection
@@ -35,13 +37,13 @@ class ConnectionWrapper extends Connection
     /** @var mixed[] */
     private array $batchList = [];
 
-    public function createQueryBuilder() : QueryBuilder
+    public function createQueryBuilder(): QueryBuilder
     {
         return new QueryBuilder($this);
     }
 
     /** {@inheritDoc} */
-    public function delete($tableExpression, array $identifier, array $types = []) : void
+    public function delete($tableExpression, array $identifier, array $types = []): void
     {
         if (empty($identifier)) {
             throw InvalidArgumentException::fromEmptyCriteria();
@@ -116,7 +118,7 @@ class ConnectionWrapper extends Connection
     /**
      * @param mixed[] $refs
      */
-    private function addToBatchList(Request $request, array $refs) : void
+    private function addToBatchList(Request $request, array $refs): void
     {
         $command = [
             'body' => json_decode($request->getBody()->getContents(), true),
@@ -133,17 +135,17 @@ class ConnectionWrapper extends Connection
         $this->batchList[] = $command;
     }
 
-    public function beginTransaction() : void
+    public function beginTransaction(): void
     {
         ++$this->transactionalLevel;
     }
 
-    public function isTransactionActive() : bool
+    public function isTransactionActive(): bool
     {
         return $this->transactionalLevel > 0;
     }
 
-    public function commit() : void
+    public function commit(): void
     {
         if ($this->transactionalLevel === 0) {
             throw ConnectionException::noActiveTransaction();
@@ -166,7 +168,7 @@ class ConnectionWrapper extends Connection
 
         $this->resetBatchListAndTransactionLevel();
 
-        $errors = array_filter(array_map(static function ($payload) : array {
+        $errors = array_filter(array_map(static function ($payload): array {
             if (isset($payload['body'][0]['errorCode'])) {
                 return [$payload['body'][0]['message']];
             }
@@ -179,23 +181,23 @@ class ConnectionWrapper extends Connection
         }
     }
 
-    public function rollBack() : void
+    public function rollBack(): void
     {
         $this->resetBatchListAndTransactionLevel();
     }
 
-    private function resetBatchListAndTransactionLevel() : void
+    private function resetBatchListAndTransactionLevel(): void
     {
         $this->transactionalLevel = 0;
         $this->batchList          = [];
     }
 
     /** @return mixed[] */
-    private function compositeList() : array
+    private function compositeList(): array
     {
         return [
             'allOrNone'        => true,
-            'compositeRequest' => array_map(static function (array $subRequest) : array {
+            'compositeRequest' => array_map(static function (array $subRequest): array {
                 return array_key_exists('referenceId', $subRequest)
                     ? $subRequest
                     : array_merge($subRequest, [
@@ -206,7 +208,7 @@ class ConnectionWrapper extends Connection
         ];
     }
 
-    private function send(RequestInterface $request) : ResponseInterface
+    private function send(RequestInterface $request): ResponseInterface
     {
         $requestId = uniqid('requestId', false);
         $logger    = $this->_config->getSQLLogger();
@@ -245,7 +247,7 @@ class ConnectionWrapper extends Connection
         return $response;
     }
 
-    private function getHttpClient() : ClientInterface
+    private function getHttpClient(): ClientInterface
     {
         $this->connect();
 

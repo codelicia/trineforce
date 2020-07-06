@@ -8,5 +8,5 @@ use GuzzleHttp\ClientInterface;
 
 interface AuthorizedClientFactory
 {
-    public function __invoke() : ClientInterface;
+    public function __invoke(): ClientInterface;
 }

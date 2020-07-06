@@ -8,6 +8,7 @@ use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Doctrine\DBAL\Driver\Connection;
 use GuzzleHttp\ClientInterface;
 use PDO;
+
 use function addslashes;
 use function func_get_args;
 
@@ -21,18 +22,18 @@ class SoqlConnection implements Connection
     }
 
     /** {@inheritDoc} */
-    public function prepare($prepareString) : SoqlStatement
+    public function prepare($prepareString): SoqlStatement
     {
         return new SoqlStatement($this->getHttpClient(), $prepareString);
     }
 
-    public function getHttpClient() : ClientInterface
+    public function getHttpClient(): ClientInterface
     {
         return $this->authorizedClientFactory->__invoke();
     }
 
     /** {@inheritDoc} */
-    public function query() : SoqlStatement
+    public function query(): SoqlStatement
     {
         $args = func_get_args();
         $sql  = $args[0];
@@ -43,13 +44,13 @@ class SoqlConnection implements Connection
     }
 
     /** {@inheritDoc} */
-    public function quote($input, $type = PDO::PARAM_STR) : string
+    public function quote($input, $type = PDO::PARAM_STR): string
     {
         return "'" . addslashes($input) . "'";
     }
 
     /** {@inheritDoc} */
-    public function exec($statement) : int
+    public function exec($statement): int
     {
         // TODO: Look in the payload
         if ($this->connection->query($statement) === false) {
@@ -60,25 +61,25 @@ class SoqlConnection implements Connection
     }
 
     /** {@inheritDoc} */
-    public function lastInsertId($name = null) : string
+    public function lastInsertId($name = null): string
     {
         return $this->connection->insert_id;
     }
 
     /** {@inheritDoc} */
-    public function beginTransaction() : bool
+    public function beginTransaction(): bool
     {
         return true;
     }
 
     /** {@inheritDoc} */
-    public function commit() : bool
+    public function commit(): bool
     {
         return true;
     }
 
     /** {@inheritDoc} */
-    public function rollBack() : bool
+    public function rollBack(): bool
     {
         return true;
     }
@@ -90,7 +91,7 @@ class SoqlConnection implements Connection
     }
 
     /** {@inheritdoc} */
-    public function errorInfo() : array
+    public function errorInfo(): array
     {
         return $this->connection->error;
     }
