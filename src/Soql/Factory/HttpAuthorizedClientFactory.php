@@ -6,6 +6,7 @@ namespace Codelicia\Soql\Factory;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+
 use function sprintf;
 
 final class HttpAuthorizedClientFactory implements AuthorizedClientFactory
@@ -20,7 +21,7 @@ final class HttpAuthorizedClientFactory implements AuthorizedClientFactory
         $this->salesforceInstance = $salesforceInstance;
     }
 
-    public function __invoke() : ClientInterface
+    public function __invoke(): ClientInterface
     {
         return new Client([
             'base_uri' => $this->salesforceInstance,

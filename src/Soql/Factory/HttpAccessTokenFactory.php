@@ -6,6 +6,7 @@ namespace Codelicia\Soql\Factory;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+
 use function json_decode;
 
 final class HttpAccessTokenFactory implements AccessTokenFactory
@@ -37,7 +38,7 @@ final class HttpAccessTokenFactory implements AccessTokenFactory
         $this->accessToken        = null;
     }
 
-    public function __invoke(?ClientInterface $client = null) : string
+    public function __invoke(?ClientInterface $client = null): string
     {
         if ($this->accessToken !== null) {
             return $this->accessToken;

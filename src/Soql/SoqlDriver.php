@@ -14,6 +14,7 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+
 use function array_key_exists;
 
 class SoqlDriver implements Driver, ExceptionConverterDriver
@@ -23,7 +24,7 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
      *
      * @throws AssertionFailedException
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = []) : Connection
+    public function connect(array $params, $username = null, $password = null, array $driverOptions = []): Connection
     {
         Assertion::notNull($username);
         Assertion::notNull($password);
@@ -31,7 +32,7 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
         return new SoqlConnection($this->getAuthorizedClientFactory($username, $password, $params));
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return 'soql';
     }
@@ -49,7 +50,7 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
     }
 
     /** {@inheritdoc} */
-    public function getDatabasePlatform() : MySqlPlatform
+    public function getDatabasePlatform(): MySqlPlatform
     {
         return new MySqlPlatform();
     }
@@ -65,7 +66,7 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
         string $username,
         string $password,
         array $params
-    ) : AuthorizedClientFactory {
+    ): AuthorizedClientFactory {
         Assertion::keyExists($params, 'salesforceInstance');
         Assertion::keyExists($params, 'consumerKey');
         Assertion::keyExists($params, 'consumerSecret');

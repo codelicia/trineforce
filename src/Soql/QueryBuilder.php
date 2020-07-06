@@ -7,6 +7,7 @@ namespace Codelicia\Soql;
 use Assert\Assertion;
 use BadMethodCallException;
 use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilder;
+
 use function implode;
 use function is_string;
 use function sprintf;
@@ -19,7 +20,7 @@ final class QueryBuilder extends DbalQueryBuilder
      *
      * @param string|string[] $columns
      */
-    public function join($table, $columns, $where = '', $extra = null) : self
+    public function join($table, $columns, $where = '', $extra = null): self
     {
         Assertion::notEmpty($table);
         Assertion::isArray($columns);
@@ -46,7 +47,7 @@ final class QueryBuilder extends DbalQueryBuilder
     }
 
     /** {@inheritDoc} */
-    public function leftJoin($fromAlias, $join, $alias, $condition = null) : void
+    public function leftJoin($fromAlias, $join, $alias, $condition = null): void
     {
         throw new BadMethodCallException(sprintf('"%s" method call is not allowed, use "join" instead.', __METHOD__));
     }

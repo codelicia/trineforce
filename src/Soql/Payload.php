@@ -35,7 +35,7 @@ final class Payload
     }
 
     /** @param mixed[] $values */
-    public static function withValues(iterable $values) : self
+    public static function withValues(iterable $values): self
     {
         return new self(
             $values['done'],
@@ -45,7 +45,7 @@ final class Payload
     }
 
     /** @param mixed[] $values */
-    public static function withErrors(iterable $values) : self
+    public static function withErrors(iterable $values): self
     {
         return new self(
             false,
@@ -61,35 +61,35 @@ final class Payload
      *
      * @return mixed[][]
      */
-    private static function removeRecordMetadata(array $row) : array
+    private static function removeRecordMetadata(array $row): array
     {
         unset($row['attributes']);
 
         return $row;
     }
 
-    public function totalSize() : int
+    public function totalSize(): int
     {
         return $this->totalSize;
     }
 
     /** @return mixed[][] */
-    public function getResults() : array
+    public function getResults(): array
     {
         return $this->values;
     }
 
-    public function success() : bool
+    public function success(): bool
     {
         return $this->success;
     }
 
-    public function getErrorMessage() : ?string
+    public function getErrorMessage(): ?string
     {
         return $this->errorMessage;
     }
 
-    public function getErrorCode() : ?string
+    public function getErrorCode(): ?string
     {
         return $this->errorCode;
     }
