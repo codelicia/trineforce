@@ -13,7 +13,7 @@
         "php": ">=7.4",
         "beberlei/assert": "^3.2",
         "doctrine/orm": "^2.6",
-        "guzzlehttp/guzzle": "^6.0",
+        "guzzlehttp/guzzle": "^7.1",
         "ext-json": "*",
         "ext-pdo": "*"
     },
