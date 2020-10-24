@@ -18,12 +18,12 @@ final class DriverErrorTest extends TestCase
         $expectedMessage   = 'The Driver Has Some Error';
         $expectedErrorCode = random_int(1, PHP_INT_MAX);
 
-        $stackedException = new SoqlError('Wrong Message', null, $expectedErrorCode);
+        $stackedException = new SoqlError(message: 'Wrong Message', errorCode: $expectedErrorCode);
 
         $exception = new DriverError($expectedMessage, $stackedException);
 
         self::assertSame($expectedMessage, $exception->getMessage());
         self::assertSame($expectedErrorCode, $exception->getErrorCode());
-        self::assertSame(0, $exception->getCode());
+        self::assertSame(expected: 0, actual: $exception->getCode());
     }
 }

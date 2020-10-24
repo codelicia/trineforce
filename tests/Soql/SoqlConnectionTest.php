@@ -12,25 +12,25 @@ use PHPUnit\Framework\TestCase;
 
 final class SoqlConnectionTest extends TestCase
 {
-    /** @var AuthorizedClientFactory|MockObject  */
+    /** @var AuthorizedClientFactory|MockObject */
     private $authorizedClientFactory;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->authorizedClientFactory = $this->createMock(AuthorizedClientFactory::class);
     }
 
     /** @test */
-    public function query() : void
+    public function query(): void
     {
-        $sut       = new SoqlConnection($this->authorizedClientFactory);
+        $sut = new SoqlConnection($this->authorizedClientFactory);
         $statement = $sut->query('SELECT Id From Contact');
 
         self::assertInstanceOf(SoqlStatement::class, $statement);
     }
 
     /** @test */
-    public function quote() : void
+    public function quote(): void
     {
         $sut = new SoqlConnection($this->authorizedClientFactory);
         self::assertSame(
@@ -40,7 +40,7 @@ final class SoqlConnectionTest extends TestCase
     }
 
     /** @test */
-    public function asserts_on_default_values() : void
+    public function asserts_on_default_values(): void
     {
         $sut = new SoqlConnection($this->authorizedClientFactory);
 

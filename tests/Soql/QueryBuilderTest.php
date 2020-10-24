@@ -13,9 +13,9 @@ use PHPUnit\Framework\TestCase;
 final class QueryBuilderTest extends TestCase
 {
     /** @test */
-    public function join() : void
+    public function join(): void
     {
-        $connection   = $this->createMock(Connection::class);
+        $connection = $this->createMock(Connection::class);
         $connection->expects(self::atLeastOnce())
             ->method('getDatabasePlatform')
             ->willReturn(new MySqlPlatform());
@@ -51,7 +51,7 @@ final class QueryBuilderTest extends TestCase
     }
 
     /** @test */
-    public function it_should_urlencode_string_parameters() : void
+    public function it_should_urlencode_string_parameters(): void
     {
         $phone = '+(000) 0000-0000';
         $queryBuilder = (new QueryBuilder($this->createMock(Connection::class)))
@@ -61,7 +61,7 @@ final class QueryBuilderTest extends TestCase
     }
 
     /** @test */
-    public function it_should_not_urlencode_non_string_parameters() : void
+    public function it_should_not_urlencode_non_string_parameters(): void
     {
         $queryBuilder = (new QueryBuilder($this->createMock(Connection::class)))
             ->setParameter('age', 12);
@@ -70,7 +70,7 @@ final class QueryBuilderTest extends TestCase
     }
 
     /** @test */
-    public function it_should_deny_left_join_method_call() : void
+    public function it_should_deny_left_join_method_call(): void
     {
         $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
 
@@ -80,7 +80,7 @@ final class QueryBuilderTest extends TestCase
     }
 
     /** @test */
-    public function it_should_deny_right_join_method_call() : void
+    public function it_should_deny_right_join_method_call(): void
     {
         $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
 
@@ -90,7 +90,7 @@ final class QueryBuilderTest extends TestCase
     }
 
     /** @test */
-    public function it_should_deny_inner_join_method_call() : void
+    public function it_should_deny_inner_join_method_call(): void
     {
         $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
 

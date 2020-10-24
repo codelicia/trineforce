@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 final class SoqlDriverTest extends TestCase
 {
     /** @test */
-    public function it_should_fail_if_null_password_or_username_is_provided() : void
+    public function it_should_fail_if_null_password_or_username_is_provided(): void
     {
         $driver = new SoqlDriver();
 
@@ -24,7 +24,7 @@ final class SoqlDriverTest extends TestCase
     }
 
     /** @test */
-    public function it_should_return_driver_details() : void
+    public function it_should_return_driver_details(): void
     {
         $driver = new SoqlDriver();
 

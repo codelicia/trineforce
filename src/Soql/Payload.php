@@ -8,30 +8,14 @@ use function array_map as map;
 
 final class Payload
 {
-    private bool $success;
-
-    private int $totalSize;
-
-    /** @var mixed[][] */
-    private array $values;
-
-    private ?string $errorMessage = null;
-
-    private ?string $errorCode = null;
-
     /** @param mixed[] $values */
     public function __construct(
-        bool $success,
-        int $totalSize,
-        array $values,
-        ?string $errorMessage = null,
-        ?string $errorCode = null
+        private bool $success,
+        private int $totalSize,
+        private array $values,
+        private ?string $errorMessage = null,
+        private ?string $errorCode = null
     ) {
-        $this->success      = $success;
-        $this->totalSize    = $totalSize;
-        $this->values       = $values;
-        $this->errorMessage = $errorMessage;
-        $this->errorCode    = $errorCode;
     }
 
     /** @param mixed[] $values */

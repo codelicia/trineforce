@@ -24,7 +24,7 @@ final class HttpAccessTokenFactoryTest extends TestCase
 
         $client = $this->createMock(ClientInterface::class);
         $client->expects(self::once())->method('request')->willReturn(
-            new Response(200, [], '{"access_token": "s3Gr3D0"}')
+            new Response(status: 200, body: '{"access_token": "s3Gr3D0"}')
         );
 
         $factory->__invoke($client);

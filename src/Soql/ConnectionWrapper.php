@@ -25,6 +25,7 @@ use function sprintf;
 use function uniqid;
 
 use const JSON_PRETTY_PRINT;
+use const JSON_THROW_ON_ERROR;
 
 class ConnectionWrapper extends Connection
 {
@@ -59,8 +60,8 @@ class ConnectionWrapper extends Connection
 
         $param = $identifier['Id'] ?? (key($identifier) . '/' . $identifier[key($identifier)]);
         $this->send(new Request(
-            'DELETE',
-            sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param)
+            method: 'DELETE',
+            uri: sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param)
         ));
     }
 
@@ -68,10 +69,9 @@ class ConnectionWrapper extends Connection
     public function insert($tableExpression, array $data, array $refs = [])
     {
         $request = new Request(
-            'POST',
-            sprintf(self::SERVICE_OBJECT_URL, $tableExpression),
-            [],
-            json_encode($data)
+            method: 'POST',
+            uri: sprintf(self::SERVICE_OBJECT_URL, $tableExpression),
+            body: json_encode($data, JSON_THROW_ON_ERROR)
         );
 
         if ($this->isTransactionActive()) {
@@ -81,7 +81,7 @@ class ConnectionWrapper extends Connection
         }
 
         $response     = $this->send($request);
-        $responseBody = json_decode($response->getBody()->getContents(), true);
+        $responseBody = json_decode($response->getBody()->getContents(), assoc: true, options: JSON_THROW_ON_ERROR);
 
         if ($responseBody['success'] !== true) {
             throw OperationFailed::insertFailed($data);
@@ -91,15 +91,14 @@ class ConnectionWrapper extends Connection
     /** {@inheritDoc} */
     public function update($tableExpression, array $data, array $identifier = [], array $refs = [])
     {
-        Assert::keyExists($identifier, 'Id');
+        Assert::keyExists($identifier, key: 'Id');
 
         $param = $identifier['Id'] ?? (key($identifier) . '/' . $identifier[key($identifier)]);
 
         $request = new Request(
-            'PATCH',
-            sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param),
-            [],
-            json_encode($data)
+            method: 'PATCH',
+            uri: sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param),
+            body: json_encode($data, options: JSON_THROW_ON_ERROR)
         );
 
         if ($this->isTransactionActive()) {
@@ -121,13 +120,13 @@ class ConnectionWrapper extends Connection
     private function addToBatchList(Request $request, array $refs): void
     {
         $command = [
-            'body' => json_decode($request->getBody()->getContents(), true),
+            'body'   => json_decode($request->getBody()->getContents(), assoc: true),
             'method' => $request->getMethod(),
-            'url' => (string) $request->getUri(),
+            'url'    => (string) $request->getUri(),
         ];
 
         if ($refs !== []) {
-            Assert::keyExists($refs, 'referenceId');
+            Assert::keyExists($refs, key: 'referenceId');
 
             $command = array_merge($command, ['referenceId' => $refs['referenceId']]);
         }
@@ -158,13 +157,12 @@ class ConnectionWrapper extends Connection
         }
 
         $response = $this->send(new Request(
-            'POST',
-            self::SERVICE_COMPOSITE_URL,
-            [],
-            json_encode($this->compositeList())
+            method: 'POST',
+            uri: self::SERVICE_COMPOSITE_URL,
+            body: json_encode($this->compositeList(), options: JSON_THROW_ON_ERROR)
         ));
 
-        $responseBody = json_decode($response->getBody()->getContents(), true);
+        $responseBody = json_decode($response->getBody()->getContents(), assoc: true);
 
         $this->resetBatchListAndTransactionLevel();
 
@@ -198,10 +196,10 @@ class ConnectionWrapper extends Connection
         return [
             'allOrNone'        => true,
             'compositeRequest' => array_map(static function (array $subRequest): array {
-                return array_key_exists('referenceId', $subRequest)
+                return array_key_exists(key: 'referenceId', search: $subRequest)
                     ? $subRequest
                     : array_merge($subRequest, [
-                        'referenceId' => uniqid('referenceId', false),
+                        'referenceId' => uniqid(prefix: 'referenceId', more_entropy: false),
                         'httpHeaders' => ['Sforce-Auto-Assign' => 'FALSE'],
                     ]);
             }, $this->batchList),
@@ -223,7 +221,7 @@ class ConnectionWrapper extends Connection
                     'header'    => $request->getHeaders(),
                     'body'      => json_decode($request->getBody()->getContents(), true),
                 ],
-            ], JSON_PRETTY_PRINT));
+            ], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
         }
 
         $request->getBody()->rewind();
@@ -238,7 +236,7 @@ class ConnectionWrapper extends Connection
                     'header'     => $response->getHeaders(),
                     'body'       => json_decode($response->getBody()->getContents(), true),
                 ],
-            ], JSON_PRETTY_PRINT));
+            ], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
             $logger->stopQuery();
         }
 

@@ -9,33 +9,18 @@ use GuzzleHttp\ClientInterface;
 
 use function json_decode;
 
+use const JSON_THROW_ON_ERROR;
+
 final class HttpAccessTokenFactory implements AccessTokenFactory
 {
-    private string $salesforceInstance;
-
-    private string $consumerKey;
-
-    private string $consumerSecret;
-
-    private string $username;
-
-    private string $password;
-
-    private ?string $accessToken;
-
     public function __construct(
-        string $salesforceInstance,
-        string $consumerKey,
-        string $consumerSecret,
-        string $username,
-        string $password
+        private string $salesforceInstance,
+        private string $consumerKey,
+        private string $consumerSecret,
+        private string $username,
+        private string $password,
+        private ?string $accessToken = null
     ) {
-        $this->salesforceInstance = $salesforceInstance;
-        $this->consumerKey        = $consumerKey;
-        $this->consumerSecret     = $consumerSecret;
-        $this->username           = $username;
-        $this->password           = $password;
-        $this->accessToken        = null;
     }
 
     public function __invoke(?ClientInterface $client = null): string
@@ -48,16 +33,16 @@ final class HttpAccessTokenFactory implements AccessTokenFactory
 
         $options = [
             'form_params' => [
-                'grant_type' => 'password',
-                'client_id' => $this->consumerKey,
+                'grant_type'    => 'password',
+                'client_id'     => $this->consumerKey,
                 'client_secret' => $this->consumerSecret,
-                'username' => $this->username,
-                'password' => $this->password,
+                'username'      => $this->username,
+                'password'      => $this->password,
             ],
         ];
 
         $response     = $client->request('POST', '/services/oauth2/token', $options);
-        $authResponse = json_decode($response->getBody()->getContents(), true);
+        $authResponse = json_decode($response->getBody()->getContents(), assoc: true, options: JSON_THROW_ON_ERROR);
 
         return $this->accessToken = $authResponse['access_token'];
     }

@@ -17,6 +17,8 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 
 use function array_key_exists;
 
+use const Doctrine\DBAL\Exception\DriverException;
+
 class SoqlDriver implements Driver, ExceptionConverterDriver
 {
     /**
@@ -38,13 +40,13 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
     }
 
     /** {@inheritdoc} */
-    public function convertException($message, DriverException $exception)
+    public function convertException($message, DriverException $exception): DriverError | DriverException
     {
         return new DriverError($message, $exception);
     }
 
     /** {@inheritdoc} */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(\Doctrine\DBAL\Connection $conn): ?string
     {
         return null;
     }

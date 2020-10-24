@@ -14,13 +14,18 @@ final class PayloadTest extends TestCase
      * @test
      * @dataProvider provideValidPayload
      */
-    public function create_payload_with_data(iterable $data) : void
+    public function create_payload_with_data(iterable $data): void
     {
         $payload = Payload::withValues($data);
 
         self::assertTrue($payload->success());
         self::assertSame(1, $payload->totalSize());
-        self::assertSame([['Id' => '0062X00000vLZDVQA4', 'Name' => 'Pay as you go Opportunity']], $payload->getResults());
+        self::assertSame([
+            [
+                'Id'   => '0062X00000vLZDVQA4',
+                'Name' => 'Pay as you go Opportunity',
+            ],
+        ], $payload->getResults());
         self::assertNull($payload->getErrorMessage());
         self::assertNull($payload->getErrorCode());
     }
@@ -29,7 +34,7 @@ final class PayloadTest extends TestCase
      * @test
      * @dataProvider provideErrorPayload
      */
-    public function create_error_payload_with_data(iterable $data) : void
+    public function create_error_payload_with_data(iterable $data): void
     {
         $payload = Payload::withErrors($data);
 
@@ -40,31 +45,31 @@ final class PayloadTest extends TestCase
         self::assertSame('INVALID_TYPE', $payload->getErrorCode());
     }
 
-    public function provideValidPayload() : Generator
+    public function provideValidPayload(): Generator
     {
         yield [
-            'valid opportunity payload' =>  [
+            'valid opportunity payload' => [
                 'totalSize' => 1,
-                'done' => true,
-                'records' => [
+                'done'      => true,
+                'records'   => [
                     [
                         'attributes' => [
                             'type' => 'Opportunity',
-                            'url' => '/services/data/v20.0/sobjects/Opportunity/0062X00000vLZDVQA4',
+                            'url'  => '/services/data/v20.0/sobjects/Opportunity/0062X00000vLZDVQA4',
                         ],
-                        'Id' => '0062X00000vLZDVQA4',
-                        'Name' => 'Pay as you go Opportunity',
+                        'Id'         => '0062X00000vLZDVQA4',
+                        'Name'       => 'Pay as you go Opportunity',
                     ],
                 ],
             ],
         ];
     }
 
-    public function provideErrorPayload() : Generator
+    public function provideErrorPayload(): Generator
     {
         yield [
             [
-                'message' => 'sObject type \'Opportunitay\' is not supported.',
+                'message'   => 'sObject type \'Opportunitay\' is not supported.',
                 'errorCode' => 'INVALID_TYPE',
             ],
         ];

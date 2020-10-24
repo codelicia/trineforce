@@ -31,6 +31,7 @@ use function sprintf;
 use function str_replace;
 use function substr;
 
+use const JSON_THROW_ON_ERROR;
 use const PREG_OFFSET_CAPTURE;
 
 class SoqlStatement implements IteratorAggregate, Statement
@@ -255,16 +256,16 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** @return mixed[]|false */
-    private function doFetch()
+    private function doFetch(): array | bool
     {
         // TODO: how to deal with different versions? Maybe `driverOptions`?
         $request = $this->connection->get('/services/data/v20.0/query?q=' . $this->statement);
 
-        return json_decode($request->getBody()->getContents(), true);
+        return json_decode($request->getBody()->getContents(), assoc: true, options: JSON_THROW_ON_ERROR);
     }
 
     /** {@inheritdoc} */
-    public function fetch($fetchMode = null, $cursorOrientation = null, $cursorOffset = 0)
+    public function fetch($fetchMode = null, $cursorOrientation = null, $cursorOffset = 0): mixed
     {
         $result = $this->fetchAll($fetchMode);
 
@@ -276,7 +277,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null): array
     {
         // Early return payload
         if ($this->payload !== null) {
@@ -287,7 +288,7 @@ class SoqlStatement implements IteratorAggregate, Statement
             $values = $this->doFetch();
         } catch (ClientException $exception) {
             $responseContent = $exception->getResponse()->getBody()->getContents();
-            $firstError      = json_decode($responseContent, true)[0];
+            $firstError      = json_decode($responseContent, assoc: true, options: JSON_THROW_ON_ERROR)[0];
             $this->payload   = Payload::withErrors($firstError);
 
             throw new SoqlError($this->payload->getErrorMessage(), $this->payload->getErrorCode());
@@ -301,7 +302,7 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritdoc} */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn($columnIndex = 0): mixed
     {
         $row = $this->fetchAll(FetchMode::NUMERIC);
 
@@ -313,13 +314,13 @@ class SoqlStatement implements IteratorAggregate, Statement
     }
 
     /** {@inheritdoc} */
-    public function errorCode()
+    public function errorCode(): bool | int | string | null
     {
         return $this->payload->getErrorCode();
     }
 
     /** {@inheritdoc} */
-    public function errorInfo()
+    public function errorInfo(): array | string | null
     {
         return $this->payload->getErrorMessage();
     }
