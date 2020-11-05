@@ -5,6 +5,10 @@
     "license": "MIT",
     "authors": [
         {
+            "name": "Alexandre Eher",
+            "email": "alexandre@eher.com.br"
+        },
+        {
             "name": "Jefersson Nathan",
             "email": "malukenho.dev@gmail.com"
         }
