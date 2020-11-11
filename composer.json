@@ -25,7 +25,8 @@
         "doctrine/coding-standard": "^8.1",
         "phpunit/phpunit": "^8.3 | ^9.0",
         "roave/security-advisories": "dev-master",
-        "symplify/changelog-linker": "^8.0"
+        "symplify/changelog-linker": "^8.0",
+        "staabm/annotate-pull-request-from-checkstyle": "^1.4"
     },
     "autoload": {
         "psr-4": {
