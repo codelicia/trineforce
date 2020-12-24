@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CodeliciaTest\Soql;
+namespace CodeliciaTest\Soql\Factory;
 
 use Codelicia\Soql\Factory\HttpAccessTokenFactory;
 use GuzzleHttp\ClientInterface;
