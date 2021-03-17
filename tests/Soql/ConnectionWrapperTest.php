@@ -9,7 +9,6 @@ use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Codelicia\Soql\QueryBuilder;
 use Codelicia\Soql\SoqlDriver;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
