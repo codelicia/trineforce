@@ -25,6 +25,7 @@ use function sprintf;
 use function uniqid;
 
 use const JSON_PRETTY_PRINT;
+use const JSON_THROW_ON_ERROR;
 
 class ConnectionWrapper extends Connection
 {
@@ -42,8 +43,12 @@ class ConnectionWrapper extends Connection
         return new QueryBuilder($this);
     }
 
-    /** {@inheritDoc} */
-    public function delete($tableExpression, array $identifier, array $types = []): void
+    /**
+     * {@inheritDoc}
+     *
+     * @param array<string, string> $headers contains the headers that will be used when sending the request.
+     */
+    public function delete($tableExpression, array $identifier, array $types = [], array $headers = []): void
     {
         if (empty($identifier)) {
             throw InvalidArgumentException::fromEmptyCriteria();
@@ -60,17 +65,22 @@ class ConnectionWrapper extends Connection
         $param = $identifier['Id'] ?? (key($identifier) . '/' . $identifier[key($identifier)]);
         $this->send(new Request(
             'DELETE',
-            sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param)
+            sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param),
+            $headers
         ));
     }
 
-    /** {@inheritDoc} */
-    public function insert($tableExpression, array $data, array $refs = [])
+    /**
+     * {@inheritDoc}
+     *
+     * @param array<string, string> $headers contains the headers that will be used when sending the request.
+     */
+    public function insert($tableExpression, array $data, array $refs = [], array $headers = [])
     {
         $request = new Request(
             'POST',
             sprintf(self::SERVICE_OBJECT_URL, $tableExpression),
-            [],
+            $headers,
             json_encode($data)
         );
 
@@ -88,8 +98,12 @@ class ConnectionWrapper extends Connection
         }
     }
 
-    /** {@inheritDoc} */
-    public function update($tableExpression, array $data, array $identifier = [], array $refs = [])
+    /**
+     * {@inheritDoc}
+     *
+     * @param array<string, string> $headers contains the headers that will be used when sending the request.
+     */
+    public function update($tableExpression, array $data, array $identifier = [], array $refs = [], array $headers = [])
     {
         Assert::keyExists($identifier, 'Id');
 
@@ -98,7 +112,7 @@ class ConnectionWrapper extends Connection
         $request = new Request(
             'PATCH',
             sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param),
-            [],
+            $headers,
             json_encode($data)
         );
 
@@ -223,7 +237,7 @@ class ConnectionWrapper extends Connection
                     'header'    => $request->getHeaders(),
                     'body'      => json_decode($request->getBody()->getContents(), true),
                 ],
-            ], JSON_PRETTY_PRINT));
+            ], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
         }
 
         $request->getBody()->rewind();
@@ -238,7 +252,7 @@ class ConnectionWrapper extends Connection
                     'header'     => $response->getHeaders(),
                     'body'       => json_decode($response->getBody()->getContents(), true),
                 ],
-            ], JSON_PRETTY_PRINT));
+            ], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
             $logger->stopQuery();
         }
 
