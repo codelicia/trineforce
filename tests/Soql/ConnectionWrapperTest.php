@@ -31,6 +31,7 @@ final class ConnectionWrapperTest extends TestCase
 
         $this->connection = new ConnectionWrapper([
             'salesforceInstance'      => 'it_is_key_to_have_it',
+            'apiVersion'              => 'api-version-456',
             'user'                    => 'foo',
             'password'                => 'foo',
             'consumerKey'             => 'foo',
@@ -40,13 +41,37 @@ final class ConnectionWrapperTest extends TestCase
     }
 
     /** @test */
+    public function it_is_using_the_right_api_version(): void
+    {
+        $this->client->expects(self::once())->method('send')
+            ->with(self::callback(static function (Request $request) : bool {
+                self::assertSame('/services/data/api-version-456/sobjects/User', $request->getUri()->getPath());
+
+                return true;
+            }))
+            ->willReturn($this->response);
+
+        $this->response->expects(self::exactly(2))->method('getBody')->willReturn($this->stream);
+        $this->response->expects(self::exactly(2))->method('getBody')->willReturn($this->stream);
+
+        $this->stream->expects(self::once())->method('rewind');
+        $this->stream->expects(self::once())->method('getContents')
+            ->willReturn(file_get_contents(__DIR__ . '/../fixtures/generic_success.json'));
+
+        $this->connection->insert(
+            'User',
+            ['Name' => 'Pay as you go Opportunity'],
+            ['Id' => 123],
+        );
+    }
+
+    /** @test */
     public function insert_with_no_transaction(): void
     {
         $this->client->expects(self::once())->method('send')
             ->with(self::assertHttpHeaderIsPropagated())
             ->willReturn($this->response);
 
-        $this->response->expects(self::exactly(2))->method('getBody')->willReturn($this->stream);
         $this->response->expects(self::exactly(2))->method('getBody')->willReturn($this->stream);
 
         $this->stream->expects(self::once())->method('rewind');

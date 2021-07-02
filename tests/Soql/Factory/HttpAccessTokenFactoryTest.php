@@ -16,6 +16,7 @@ final class HttpAccessTokenFactoryTest extends TestCase
     {
         $factory = new HttpAccessTokenFactory(
             'salesforceInstance',
+            'apiVersion',
             'consumerKey',
             'consumerSecret',
             'username',
