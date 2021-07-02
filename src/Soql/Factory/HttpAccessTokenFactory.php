@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpPropertyOnlyWrittenInspection */
+
 declare(strict_types=1);
 
 namespace Codelicia\Soql\Factory;
@@ -13,6 +15,8 @@ final class HttpAccessTokenFactory implements AccessTokenFactory
 {
     private string $salesforceInstance;
 
+    private string $apiVersion;
+
     private string $consumerKey;
 
     private string $consumerSecret;
@@ -25,12 +29,14 @@ final class HttpAccessTokenFactory implements AccessTokenFactory
 
     public function __construct(
         string $salesforceInstance,
+        string $apiVersion,
         string $consumerKey,
         string $consumerSecret,
         string $username,
         string $password
     ) {
         $this->salesforceInstance = $salesforceInstance;
+        $this->apiVersion         = $apiVersion;
         $this->consumerKey        = $consumerKey;
         $this->consumerSecret     = $consumerSecret;
         $this->username           = $username;
@@ -48,11 +54,11 @@ final class HttpAccessTokenFactory implements AccessTokenFactory
 
         $options = [
             'form_params' => [
-                'grant_type' => 'password',
-                'client_id' => $this->consumerKey,
+                'grant_type'    => 'password',
+                'client_id'     => $this->consumerKey,
                 'client_secret' => $this->consumerSecret,
-                'username' => $this->username,
-                'password' => $this->password,
+                'username'      => $this->username,
+                'password'      => $this->password,
             ],
         ];
 

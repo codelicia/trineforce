@@ -68,6 +68,7 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
         array $params
     ): AuthorizedClientFactory {
         Assertion::keyExists($params, 'salesforceInstance');
+        Assertion::keyExists($params, 'apiVersion');
         Assertion::keyExists($params, 'consumerKey');
         Assertion::keyExists($params, 'consumerSecret');
 
@@ -79,6 +80,7 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
 
         return new HttpAuthorizedClientFactory(new HttpAccessTokenFactory(
             $params['salesforceInstance'],
+            $params['apiVersion'],
             $params['consumerKey'],
             $params['consumerSecret'],
             $username,

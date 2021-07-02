@@ -30,12 +30,13 @@ the right `driverClass`. The usual `user` and `password` are also required.
 $config = new Configuration();
 $connectionParams = [
     'salesforceInstance' => 'https://[SALESFORCE INSTANCE].salesforce.com',
-    'user' => 'salesforce-user@email.com',
-    'password' => 'salesforce-password',
-    'consumerKey' => '...',
-    'consumerSecret' => '...',
-    'driverClass' => \Codelicia\Soql\SoqlDriver::class,
-    'wrapperClass' => \Codelicia\Soql\ConnectionWrapper::class,
+    'apiVersion'         => 'v43.0',
+    'user'               => 'salesforce-user@email.com',
+    'password'           => 'salesforce-password',
+    'consumerKey'        => '...',
+    'consumerSecret'     => '...',
+    'driverClass'        => \Codelicia\Soql\SoqlDriver::class,
+    'wrapperClass'       => \Codelicia\Soql\ConnectionWrapper::class,
 ];
 
 /** @var \Codelicia\Soql\ConnectionWrapper $conn */
@@ -46,6 +47,7 @@ $conn = DriverManager::getConnection($connectionParams, $config);
   instance.
 * `password` provides the corresponding password to the email provided on `user`.
 * `salesforceInstance` points to the url of the Salesforce instance.
+* `apiVersion` specify a salesforce API version to work with.
 * `consumerKey` provides the integration consumer key
 * `consumerSecret` provides the integration consumer secret
 * `driverClass` should points to `\Codelicia\Soql\SoqlDriver::class`
