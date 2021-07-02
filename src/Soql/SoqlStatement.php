@@ -37,11 +37,11 @@ class SoqlStatement implements IteratorAggregate, Statement
 {
     /** @var string[] */
     protected static array $paramTypeMap = [
-        ParameterType::STRING => 's',
-        ParameterType::BINARY => 's',
-        ParameterType::BOOLEAN => 'i',
-        ParameterType::NULL => 's',
-        ParameterType::INTEGER => 'i',
+        ParameterType::STRING       => 's',
+        ParameterType::BINARY       => 's',
+        ParameterType::BOOLEAN      => 'i',
+        ParameterType::NULL         => 's',
+        ParameterType::INTEGER      => 'i',
         ParameterType::LARGE_OBJECT => 'b',
     ];
 
