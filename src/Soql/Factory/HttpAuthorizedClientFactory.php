@@ -26,9 +26,9 @@ final class HttpAuthorizedClientFactory implements AuthorizedClientFactory
         return new Client([
             'base_uri' => $this->salesforceInstance,
             'headers' => [
-                'Authorization' => sprintf('Bearer %s', $this->accessTokenFactory->__invoke()),
-                'X-PrettyPrint' => '1',
-                'Content-Type' => 'application/json',
+                'Authorization'      => sprintf('Bearer %s', $this->accessTokenFactory->__invoke()),
+                'X-PrettyPrint'      => '1',
+                'Content-Type'       => 'application/json',
                 'Sforce-Auto-Assign' => 'FALSE',
             ],
         ]);

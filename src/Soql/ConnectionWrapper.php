@@ -29,9 +29,9 @@ use const JSON_THROW_ON_ERROR;
 
 class ConnectionWrapper extends Connection
 {
-    private const SERVICE_OBJECT_URL    = '/services/data/v43.0/sobjects/%s';
-    private const SERVICE_OBJECT_ID_URL = '/services/data/v43.0/sobjects/%s/%s';
-    private const SERVICE_COMPOSITE_URL = '/services/data/v43.0/composite';
+    private const SERVICE_OBJECT_URL    = '/services/data/%s/sobjects/%s';
+    private const SERVICE_OBJECT_ID_URL = '/services/data/%s/sobjects/%s/%s';
+    private const SERVICE_COMPOSITE_URL = '/services/data/%s/composite';
 
     private int $transactionalLevel = 0;
 
@@ -65,7 +65,7 @@ class ConnectionWrapper extends Connection
         $param = $identifier['Id'] ?? (key($identifier) . '/' . $identifier[key($identifier)]);
         $this->send(new Request(
             'DELETE',
-            sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param),
+            sprintf(self::SERVICE_OBJECT_ID_URL, $this->apiVersion(), $tableExpression, $param),
             $headers
         ));
     }
@@ -79,7 +79,7 @@ class ConnectionWrapper extends Connection
     {
         $request = new Request(
             'POST',
-            sprintf(self::SERVICE_OBJECT_URL, $tableExpression),
+            sprintf(self::SERVICE_OBJECT_URL, $this->apiVersion(), $tableExpression),
             $headers,
             json_encode($data)
         );
@@ -111,7 +111,7 @@ class ConnectionWrapper extends Connection
 
         $request = new Request(
             'PATCH',
-            sprintf(self::SERVICE_OBJECT_ID_URL, $tableExpression, $param),
+            sprintf(self::SERVICE_OBJECT_ID_URL, $this->apiVersion(), $tableExpression, $param),
             $headers,
             json_encode($data)
         );
@@ -259,6 +259,11 @@ class ConnectionWrapper extends Connection
         $response->getBody()->rewind();
 
         return $response;
+    }
+
+    private function apiVersion(): string
+    {
+        return $this->getParams()['apiVersion'];
     }
 
     private function getHttpClient(): ClientInterface
