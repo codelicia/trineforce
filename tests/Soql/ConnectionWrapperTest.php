@@ -52,7 +52,6 @@ final class ConnectionWrapperTest extends TestCase
             ->willReturn($this->response);
 
         $this->response->expects(self::exactly(2))->method('getBody')->willReturn($this->stream);
-        $this->response->expects(self::exactly(2))->method('getBody')->willReturn($this->stream);
 
         $this->stream->expects(self::once())->method('rewind');
         $this->stream->expects(self::once())->method('getContents')
