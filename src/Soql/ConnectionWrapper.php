@@ -173,7 +173,7 @@ class ConnectionWrapper extends Connection
 
         $response = $this->send(new Request(
             'POST',
-            self::SERVICE_COMPOSITE_URL,
+            sprintf(self::SERVICE_COMPOSITE_URL, $this->apiVersion()),
             [],
             json_encode($this->compositeList())
         ));
