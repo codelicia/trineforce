@@ -142,7 +142,13 @@ final class ConnectionWrapperTest extends TestCase
     /** @test */
     public function transactional_should_throws_exception_when_error_occurs(): void
     {
-        $this->client->expects(self::once())->method('send')->willReturn($this->response);
+        $this->client->expects(self::once())->method('send')
+            ->with(self::callback(static function (Request $request) : bool {
+                self::assertSame('/services/data/api-version-456/composite', $request->getUri()->getPath());
+
+                return true;
+            }))
+            ->willReturn($this->response);
 
         $this->response->expects(self::exactly(2))->method('getBody')->willReturn($this->stream);
 

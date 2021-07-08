@@ -50,6 +50,16 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "echevalaz",
+      "name": "echevalaz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/52658226?v=4",
+      "profile": "https://github.com/echevalaz",
+      "contributions": [
+        "bug",
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
