@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
+use GuzzleHttp\Exception\ClientException;
+
 use function array_map as map;
+use function json_decode;
+
+use const JSON_THROW_ON_ERROR;
 
 final class Payload
 {
@@ -15,9 +20,9 @@ final class Payload
     /** @var mixed[][] */
     private array $values;
 
-    private ?string $errorMessage = null;
+    private ?string $errorMessage;
 
-    private ?string $errorCode = null;
+    private ?string $errorCode;
 
     /** @param mixed[] $values */
     public function __construct(
@@ -41,6 +46,20 @@ final class Payload
             $values['done'],
             $values['totalSize'],
             map([self::class, 'removeRecordMetadata'], $values['records'])
+        );
+    }
+
+    public static function fromClientException(ClientException $exception): self
+    {
+        $responseContent = $exception->getResponse()->getBody()->getContents();
+        $firstError      = json_decode($responseContent, true, 512, JSON_THROW_ON_ERROR)[0];
+
+        return new self(
+            false,
+            0,
+            [],
+            $firstError['message'],
+            $firstError['errorCode']
         );
     }
 

@@ -4,31 +4,15 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\DriverException;
-use Exception;
+use Doctrine\DBAL\Exception\DriverException;
+use Throwable;
 
-class DriverError extends DBALException
+// todo create a marker interface
+// deprecated
+final class DriverError extends DriverException
 {
-    private DriverException $driverException;
-
-    /** {@inheritDoc} */
-    public function __construct($message, DriverException $driverException)
+    public static function withException(Throwable $exception): self
     {
-        $exception = null;
-
-        if ($driverException instanceof Exception) {
-            $exception = $driverException;
-        }
-
-        parent::__construct($message, 0, $exception);
-
-        $this->driverException = $driverException;
-    }
-
-    /** @return int|string|null */
-    public function getErrorCode()
-    {
-        return $this->driverException->getErrorCode();
+        return new self($exception, null);
     }
 }

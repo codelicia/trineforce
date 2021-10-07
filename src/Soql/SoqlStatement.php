@@ -4,355 +4,114 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
-use Assert\Assertion;
+use Codelicia\Soql\Driver\Result;
+use Doctrine\DBAL\Driver\OCI8\ConvertPositionalToNamedPlaceholders;
+use Doctrine\DBAL\Driver\OCI8\Exception\UnknownParameterIndex;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\Driver\StatementIterator;
-use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\SQL\Parser;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\ClientException;
-use IteratorAggregate;
 
-use function count;
-use function current;
-use function get_resource_type;
-use function implode;
-use function is_array;
-use function is_numeric;
-use function is_object;
-use function is_resource;
-use function is_string;
-use function json_decode;
-use function method_exists;
-use function preg_match;
-use function preg_quote;
-use function sprintf;
+use function array_keys;
+use function is_int;
 use function str_replace;
-use function substr;
 
-use const PREG_OFFSET_CAPTURE;
-
-class SoqlStatement implements IteratorAggregate, Statement
+class SoqlStatement implements Statement
 {
-    /** @var string[] */
-    protected static array $paramTypeMap = [
-        ParameterType::STRING       => 's',
-        ParameterType::BINARY       => 's',
-        ParameterType::BOOLEAN      => 'i',
-        ParameterType::NULL         => 's',
-        ParameterType::INTEGER      => 'i',
-        ParameterType::LARGE_OBJECT => 'b',
-    ];
+    protected ClientInterface $connection;
 
     protected ?Payload $payload = null;
-
-    protected ClientInterface $connection;
 
     protected string $statement;
 
     /** @var mixed[] */
-    protected array $bindedValues;
+    protected array $boundValues;
 
     /** @var string[] */
     protected array $types;
 
-    protected int $defaultFetchMode = FetchMode::MIXED;
-
     /** @var array<int, string> */
     private array $paramMap;
 
-    public function __construct(ClientInterface $connection, string $prepareString)
+    private FetchDataUtility $fetchUtility;
+
+    public function __construct(ClientInterface $connection, string $query)
     {
-        $this->connection                   = $connection;
-        [$this->statement, $this->paramMap] = self::convertPositionalToNamedPlaceholders($prepareString);
-        $this->bindedValues                 = [];
-        $this->types                        = [];
+        $parser  = new Parser(false);
+        $visitor = new ConvertPositionalToNamedPlaceholders();
+
+        $parser->parse($query, $visitor);
+
+        $this->fetchUtility = new FetchDataUtility();
+        $this->connection   = $connection;
+        $this->paramMap     = $visitor->getParameterMap();
+        $this->statement    = $visitor->getSQL();
+        $this->boundValues  = [];
+        $this->types        = [];
     }
 
-    /** @return string[]|mixed[][] */
-    public static function convertPositionalToNamedPlaceholders(string $statement): array
+    /** {@inheritdoc} */
+    public function bindValue($param, $value, $type = ParameterType::STRING)
     {
-        $fragmentOffset          = $tokenOffset = 0;
-        $fragments               = $paramMap = [];
-        $currentLiteralDelimiter = null;
+        return $this->bindParam($param, $value, $type);
+    }
 
-        do {
-            if (! $currentLiteralDelimiter) {
-                $result = self::findPlaceholderOrOpeningQuote(
-                    $statement,
-                    $tokenOffset,
-                    $fragmentOffset,
-                    $fragments,
-                    $currentLiteralDelimiter,
-                    $paramMap
-                );
-            } else {
-                $result = self::findClosingQuote($statement, $tokenOffset, $currentLiteralDelimiter);
+    /** {@inheritdoc} */
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
+    {
+        if (is_int($param)) {
+            if (! isset($this->paramMap[$param])) {
+                // todo create this exception
+                throw UnknownParameterIndex::new($param);
             }
-        } while ($result);
 
-        if ($currentLiteralDelimiter) {
-            throw new SoqlError(sprintf(
-                'The statement contains non-terminated string literal starting at offset %d',
-                $tokenOffset - 1
-            ));
+            $param = $this->paramMap[$param];
         }
 
-        $fragments[] = substr($statement, $fragmentOffset);
-        $statement   = implode('', $fragments);
-
-        return [$statement, $paramMap];
-    }
-
-    /**
-     * @param string[] $fragments
-     * @param string[] $paramMap
-     */
-    private static function findPlaceholderOrOpeningQuote(
-        string $statement,
-        int &$tokenOffset,
-        int &$fragmentOffset,
-        array &$fragments,
-        ?string &$currentLiteralDelimiter,
-        array &$paramMap
-    ): bool {
-        $token = self::findToken($statement, $tokenOffset, '/[?\'"]/');
-
-        if (! $token) {
-            return false;
-        }
-
-        if ($token === '?') {
-            $position            = count($paramMap) + 1;
-            $param               = ':param' . $position;
-            $fragments[]         = substr($statement, $fragmentOffset, $tokenOffset - $fragmentOffset);
-            $fragments[]         = $param;
-            $paramMap[$position] = $param;
-            $tokenOffset        += 1;
-            $fragmentOffset      = $tokenOffset;
-
-            return true;
-        }
-
-        $currentLiteralDelimiter = $token;
-        ++$tokenOffset;
+        $this->boundValues[$param] =& $variable;
+        $this->types[$param]       = $type;
 
         return true;
     }
 
-    private static function findToken(string $statement, int &$offset, string $regex): ?string
+    /** {@inheritdoc} */
+    public function execute($params = null): \Doctrine\DBAL\Driver\Result
     {
-        if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
-            $offset = $matches[0][1];
-
-            return $matches[0][0];
+        if ($params !== null) {
+            foreach ($params as $key => $val) {
+                $this->bindValue($key, $val);
+            }
         }
 
-        return null;
-    }
-
-    private static function findClosingQuote(
-        string $statement,
-        int &$tokenOffset,
-        ?string &$currentLiteralDelimiter
-    ): bool {
-        $token = self::findToken(
-            $statement,
-            $tokenOffset,
-            '/' . preg_quote($currentLiteralDelimiter, '/') . '/'
-        );
-
-        if (! $token) {
-            return false;
-        }
-
-        ++$tokenOffset;
-
-        return true;
-    }
-
-    /** {@inheritDoc} */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null): bool
-    {
-        return $this->bindValue($column, $variable, $type);
-    }
-
-    /** {@inheritDoci} */
-    public function bindValue($param, $value, $type = ParameterType::STRING): bool
-    {
-        if (! is_numeric($param)) {
-            throw new SoqlError(
-                'SOQL does not support named parameters to queries, use question mark (?) placeholders instead.'
+        if ($this->boundValues !== []) {
+            $values = BoundValuesSeparator::separateBoundValues(
+                $this->boundValues,
+                $this->types
             );
+
+            $this->statement = str_replace(array_keys($values), $values, $this->statement);
         }
 
-        $this->bindedValues[$param] = $value;
-        $this->types[$param]        = $type;
-
-        return true;
+        return new Result($this);
     }
 
-    /** {@inheritdoc} */
-    public function execute($params = null): bool
+    public function fetchAll(): Payload
     {
-        if ($this->bindedValues !== null) {
-            $values = $this->separateBoundValues();
-
-            $e = [];
-            foreach ($values as $v) {
-                if (is_object($v) && method_exists($v, '__toString')) {
-                    $v = (string) $v;
-                }
-
-                if (is_array($v)) {
-                    $v = implode("', '", $v);
-                }
-
-                $e[] = is_string($v) ? sprintf("'%s'", $v) : $v;
-            }
-
-            $this->statement = str_replace($this->paramMap, $e, $this->statement);
+        $payload = $this->fetchUtility->fetchAll($this->connection, $this->statement);
+        if ($payload->success() === false) {
+            throw SoqlError::fromPayloadWithClientException($this->payload);
         }
 
-        return true;
+        return $payload;
     }
 
-    /**
-     * @return string[]
-     *
-     * @throws InvalidArgumentException
-     */
-    private function separateBoundValues(): array
+    public function fetch(): array
     {
-        $values = [];
-        $types  = $this->types;
-
-        foreach ($this->bindedValues as $parameter => $value) {
-            if (! isset($types[$parameter - 1])) {
-                $types[$parameter - 1] = static::$paramTypeMap[ParameterType::STRING];
-            }
-
-            if ($types[$parameter - 1] === static::$paramTypeMap[ParameterType::LARGE_OBJECT]) {
-                if (is_resource($value)) {
-                    if (get_resource_type($value) !== 'stream') {
-                        throw new InvalidArgumentException(
-                            'Resources passed with the LARGE_OBJECT parameter type must be stream resources.'
-                        );
-                    }
-
-                    $values[$parameter] = null;
-                    continue;
-                }
-
-                $types[$parameter - 1] = static::$paramTypeMap[ParameterType::STRING];
-            }
-
-            $values[$parameter] = $value;
-        }
-
-        return $values;
+        return $this->fetchUtility->fetch($this->connection, $this->statement);
     }
 
-    /** @return mixed[]|false */
-    private function doFetch()
+    public function getSql(): string
     {
-        // TODO: how to deal with different versions? Maybe `driverOptions`?
-        $request = $this->connection->get('/services/data/v20.0/query?q=' . $this->statement);
-
-        return json_decode($request->getBody()->getContents(), true);
-    }
-
-    /** {@inheritdoc} */
-    public function fetch($fetchMode = null, $cursorOrientation = null, $cursorOffset = 0)
-    {
-        $result = $this->fetchAll($fetchMode);
-
-        Assertion::notEmpty($result);
-
-        return current($result);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
-    {
-        // Early return payload
-        if ($this->payload !== null) {
-            return $this->payload->getResults();
-        }
-
-        try {
-            $values = $this->doFetch();
-        } catch (ClientException $exception) {
-            $responseContent = $exception->getResponse()->getBody()->getContents();
-            $firstError      = json_decode($responseContent, true)[0];
-            $this->payload   = Payload::withErrors($firstError);
-
-            throw new SoqlError($this->payload->getErrorMessage(), $this->payload->getErrorCode());
-        }
-
-        $payload = Payload::withValues($values);
-
-        $this->payload = $payload;
-
-        return $this->payload->getResults();
-    }
-
-    /** {@inheritdoc} */
-    public function fetchColumn($columnIndex = 0)
-    {
-        $row = $this->fetchAll(FetchMode::NUMERIC);
-
-        if ($row === false) {
-            return false;
-        }
-
-        return $row[$columnIndex] ?? null;
-    }
-
-    /** {@inheritdoc} */
-    public function errorCode()
-    {
-        return $this->payload->getErrorCode();
-    }
-
-    /** {@inheritdoc} */
-    public function errorInfo()
-    {
-        return $this->payload->getErrorMessage();
-    }
-
-    /** {@inheritdoc} */
-    public function closeCursor(): bool
-    {
-        return true;
-    }
-
-    /** {@inheritdoc} */
-    public function rowCount(): int
-    {
-        return $this->payload->totalSize();
-    }
-
-    /** {@inheritdoc} */
-    public function columnCount(): int
-    {
-        return $this->payload->totalSize();
-    }
-
-    /** {@inheritdoc} */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null): bool
-    {
-        $this->defaultFetchMode = $fetchMode;
-
-        return true;
-    }
-
-    /** {@inheritdoc} */
-    public function getIterator(): StatementIterator
-    {
-        return new StatementIterator($this);
+        return $this->statement;
     }
 }

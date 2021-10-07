@@ -7,6 +7,7 @@ namespace CodeliciaTest\Soql;
 use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Codelicia\Soql\SoqlConnection;
 use Codelicia\Soql\SoqlStatement;
+use Codelicia\Soql\Driver\Result;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -26,7 +27,7 @@ final class SoqlConnectionTest extends TestCase
         $sut       = new SoqlConnection($this->authorizedClientFactory);
         $statement = $sut->query('SELECT Id From Contact');
 
-        self::assertInstanceOf(SoqlStatement::class, $statement);
+        self::assertInstanceOf(Result::class, $statement);
     }
 
     /** @test */

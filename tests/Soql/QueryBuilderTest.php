@@ -5,10 +5,16 @@ declare(strict_types=1);
 namespace CodeliciaTest\Soql;
 
 use BadMethodCallException;
+use Codelicia\Soql\ConnectionWrapper;
 use Codelicia\Soql\QueryBuilder;
+use Codelicia\Soql\SoqlConnection;
+use Codelicia\Soql\SoqlDriver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 final class QueryBuilderTest extends TestCase
 {
@@ -44,14 +50,116 @@ final class QueryBuilderTest extends TestCase
             $queryBuilder->select('Id')
                 ->from('Account')
                 ->join('Contact', ['Name'], 'Id = :id')
-                ->setParameter('id', '123')
+                ->setParameter(':id', '123')
                 ->setMaxResults(1)
                 ->getSQL()
         );
     }
 
     /** @test */
-    public function it_should_urlencode_string_parameters() : void
+    public function execute_should_bind_values_to_query() : void
+    {
+        $connection   = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
+        $soqlDriver->expects(self::atLeastOnce())
+            ->method('getDatabasePlatform')
+            ->willReturn(new MySqlPlatform());
+
+        $soqlDriver->expects(self::atLeastOnce())
+            ->method('connect')
+            ->willReturn($this->createMock(SoqlConnection::class));
+
+        $queryBuilder = new QueryBuilder($connection);
+
+        self::assertSame(
+            'SELECT Id, (SELECT Name FROM Contact WHERE Id = 123) FROM Account LIMIT 1',
+            $queryBuilder->select('Id')
+                ->from('Account')
+                ->join('Contact', ['Name'], 'Id = :id')
+                ->setParameter(':id', 123)
+                ->setMaxResults(1)
+                ->executeQuery()
+                ->getDriverResult()
+                ->getSql()
+        );
+    }
+
+    /** @test */
+    public function execute_should_bind_values_to_query_within_the_inner_join() : void
+    {
+        $connection   = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
+        $soqlDriver->expects(self::atLeastOnce())
+            ->method('getDatabasePlatform')
+            ->willReturn(new MySqlPlatform());
+
+        $soqlDriver->expects(self::atLeastOnce())
+            ->method('connect')
+            ->willReturn($this->createMock(SoqlConnection::class));
+
+        $queryBuilder = new QueryBuilder($connection);
+
+        self::assertSame(
+            'SELECT Id, (SELECT Name FROM Contact WHERE Id = \'123\') FROM Account LIMIT 1',
+            $queryBuilder->select('Id')
+                ->from('Account')
+                ->join('Contact', ['Name'], 'Id = :id')
+                ->setParameter(':id', '123')
+                ->setMaxResults(1)
+                ->executeQuery()
+                ->getDriverResult()
+                ->getSql()
+        );
+    }
+
+    /** @test */
+    public function fetch_should_bind_values() : void
+    {
+        $connection = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
+
+        $soqlDriver->expects(self::atLeastOnce())
+            ->method('getDatabasePlatform')
+            ->willReturn(new MySqlPlatform());
+
+        $soqlDriver->expects(self::atLeastOnce())
+            ->method('connect')
+            ->willReturn($client = $this->createMock(SoqlConnection::class));
+
+        $client->expects(self::once())
+            ->method('getHttpClient')
+            ->willReturn($httpClient = $this->createMock(Client::class));
+
+        $httpClient->expects(self::once())
+            ->method('request')
+            ->with('GET', '/services/data/v20.0/query?q=SELECT Id, (SELECT Name FROM Contact WHERE Id = \'123\') FROM Account LIMIT 1')
+            ->willReturn($response = $this->createMock(ResponseInterface::class));
+
+        $response->expects(self::once())
+            ->method('getBody')
+            ->willReturn($stream = $this->createMock(StreamInterface::class));
+
+        $stream->expects(self::once())
+            ->method('getContents')
+            ->willReturn(/** @lang JSON */ '{
+  "done": true,
+  "totalSize": 123,
+  "records": [1,2,3]
+}');
+
+        $queryBuilder = new QueryBuilder($connection);
+
+        self::assertSame(
+            [1,2,3],
+            $queryBuilder->select('Id')
+                ->from('Account')
+                ->join('Contact', ['Name'], 'Id = :id')
+                ->setParameter(':id', '123')
+                ->setMaxResults(1)
+                ->executeQuery()
+                ->fetchAllAssociative()
+        );
+    }
+
+    /** @test */
+    public function it_should_url_encode_string_parameters() : void
     {
         $phone = '+(000) 0000-0000';
         $queryBuilder = (new QueryBuilder($this->createMock(Connection::class)))
@@ -61,7 +169,7 @@ final class QueryBuilderTest extends TestCase
     }
 
     /** @test */
-    public function it_should_not_urlencode_non_string_parameters() : void
+    public function it_should_not_url_encode_non_string_parameters() : void
     {
         $queryBuilder = (new QueryBuilder($this->createMock(Connection::class)))
             ->setParameter('age', 12);

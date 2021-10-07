@@ -11,6 +11,8 @@ use GuzzleHttp\ClientInterface;
 
 use function json_decode;
 
+use const JSON_THROW_ON_ERROR;
+
 final class HttpAccessTokenFactory implements AccessTokenFactory
 {
     private string $salesforceInstance;
@@ -63,7 +65,7 @@ final class HttpAccessTokenFactory implements AccessTokenFactory
         ];
 
         $response     = $client->request('POST', '/services/oauth2/token', $options);
-        $authResponse = json_decode($response->getBody()->getContents(), true);
+        $authResponse = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
         return $this->accessToken = $authResponse['access_token'];
     }

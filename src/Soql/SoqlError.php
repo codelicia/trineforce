@@ -4,8 +4,18 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
-use Doctrine\DBAL\Driver\AbstractDriverException;
+use Doctrine\DBAL\Driver\Exception;
 
-class SoqlError extends AbstractDriverException
+// todo use a marker interface
+class SoqlError extends \Exception implements Exception
 {
+    public static function fromPayloadWithClientException(Payload $payload): self
+    {
+        return new self($payload->getErrorMessage(), $payload->getErrorCode());
+    }
+
+    public function getSQLState(): void
+    {
+        // todo
+    }
 }
