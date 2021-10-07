@@ -18,7 +18,8 @@
         "ext-json": "*",
         "ext-pdo": "*",
         "beberlei/assert": "^3.2",
-        "doctrine/orm": "^2.6",
+        "doctrine/orm": "^2.10",
+        "doctrine/dbal": "^2.13",
         "guzzlehttp/guzzle": "^6.0 | ^7.0"
     },
     "require-dev": {
