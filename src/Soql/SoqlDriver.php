@@ -5,31 +5,26 @@ declare(strict_types=1);
 namespace Codelicia\Soql;
 
 use Assert\Assertion;
-use Assert\AssertionFailedException;
 use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Codelicia\Soql\Factory\HttpAccessTokenFactory;
 use Codelicia\Soql\Factory\HttpAuthorizedClientFactory;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection;
-use Doctrine\DBAL\Driver\DriverException;
-use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Query;
 
 use function array_key_exists;
 
-class SoqlDriver implements Driver, ExceptionConverterDriver
+class SoqlDriver implements Driver, ExceptionConverter
 {
-    /**
-     * {@inheritDoc}
-     *
-     * @throws AssertionFailedException
-     */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = []): Connection
+    /** {@inheritDoc} */
+    public function connect(array $params): Connection
     {
-        Assertion::notNull($username);
-        Assertion::notNull($password);
-
-        return new SoqlConnection($this->getAuthorizedClientFactory($username, $password, $params));
+        return new SoqlConnection($this->getAuthorizedClientFactory($params));
     }
 
     public function getName(): string
@@ -38,9 +33,10 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
     }
 
     /** {@inheritdoc} */
-    public function convertException($message, DriverException $exception)
+    public function convert(Exception $exception, ?Query $query): DriverException
     {
-        return new DriverError($message, $exception);
+        // fixme
+        return DriverError::withException($exception);
     }
 
     /** {@inheritdoc} */
@@ -56,17 +52,22 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
     }
 
     /** {@inheritdoc} */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getExceptionConverter(): ExceptionConverter
+    {
+        return $this;
+    }
+
+    /** {@inheritdoc} */
+    public function getSchemaManager(\Doctrine\DBAL\Connection $conn, AbstractPlatform $platform)
     {
         // TODO: implements specific schema manager
     }
 
     /** @param string[] $params */
-    private function getAuthorizedClientFactory(
-        string $username,
-        string $password,
-        array $params
-    ): AuthorizedClientFactory {
+    private function getAuthorizedClientFactory(array $params): AuthorizedClientFactory
+    {
+        Assertion::keyExists($params, 'user');
+        Assertion::keyExists($params, 'password');
         Assertion::keyExists($params, 'salesforceInstance');
         Assertion::keyExists($params, 'apiVersion');
         Assertion::keyExists($params, 'consumerKey');
@@ -83,8 +84,8 @@ class SoqlDriver implements Driver, ExceptionConverterDriver
             $params['apiVersion'],
             $params['consumerKey'],
             $params['consumerSecret'],
-            $username,
-            $password
+            $params['user'],
+            $params['password']
         ), $params['salesforceInstance']);
     }
 }

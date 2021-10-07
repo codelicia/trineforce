@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
+use Codelicia\Soql\Driver\Result;
 use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use GuzzleHttp\ClientInterface;
 use PDO;
 
 use function addslashes;
-use function func_get_args;
 
 class SoqlConnection implements Connection
 {
@@ -22,9 +23,9 @@ class SoqlConnection implements Connection
     }
 
     /** {@inheritDoc} */
-    public function prepare($prepareString): SoqlStatement
+    public function prepare(string $sql): SoqlStatement
     {
-        return new SoqlStatement($this->getHttpClient(), $prepareString);
+        return new SoqlStatement($this->getHttpClient(), $sql);
     }
 
     public function getHttpClient(): ClientInterface
@@ -33,14 +34,12 @@ class SoqlConnection implements Connection
     }
 
     /** {@inheritDoc} */
-    public function query(): SoqlStatement
+    public function query(string $sql): ResultInterface
     {
-        $args = func_get_args();
-        $sql  = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
-        return $stmt;
+        return new Result($stmt);
     }
 
     /** {@inheritDoc} */
@@ -50,10 +49,10 @@ class SoqlConnection implements Connection
     }
 
     /** {@inheritDoc} */
-    public function exec($statement): int
+    public function exec(string $sql): int
     {
         // TODO: Look in the payload
-        if ($this->connection->query($statement) === false) {
+        if ($this->connection->query($sql) === false) {
             throw new SoqlError($this->connection->error, $this->connection->sqlstate, $this->connection->errno);
         }
 
@@ -82,17 +81,5 @@ class SoqlConnection implements Connection
     public function rollBack(): bool
     {
         return true;
-    }
-
-    /** {@inheritdoc} */
-    public function errorCode()
-    {
-        return $this->connection->errno;
-    }
-
-    /** {@inheritdoc} */
-    public function errorInfo(): array
-    {
-        return $this->connection->error;
     }
 }

@@ -20,7 +20,7 @@ final class SoqlDriverTest extends TestCase
         $driver = new SoqlDriver();
 
         $this->expectException(InvalidArgumentException::class);
-        $driver->connect([], null, null, ['foo' => 'bar']);
+        $driver->connect([]);
     }
 
     /** @test */
@@ -30,7 +30,7 @@ final class SoqlDriverTest extends TestCase
 
         self::assertSame('soql', $driver->getName());
         self::assertNull($driver->getDatabase($this->createMock(Connection::class)));
-        self::assertInstanceOf(DriverError::class, $driver->convertException('exception', new SoqlError('soql_exception')));
+        self::assertInstanceOf(DriverError::class, $driver->convert(new SoqlError('soql_exception'), null));
         self::assertInstanceOf(MySqlPlatform::class, $driver->getDatabasePlatform());
     }
 }

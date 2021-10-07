@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
+use Codelicia\Soql\DBAL\Result;
+use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
+use JsonException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Webmozart\Assert\Assert;
@@ -43,12 +48,19 @@ class ConnectionWrapper extends Connection
         return new QueryBuilder($this);
     }
 
+    public function executeQuery(string $sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
+    {
+        $statement = new SoqlStatement($this->getHttpClient(), $sql);
+
+        return new Result($statement->execute($params), $this);
+    }
+
     /**
      * {@inheritDoc}
      *
      * @param array<string, string> $headers contains the headers that will be used when sending the request.
      */
-    public function delete($tableExpression, array $identifier, array $types = [], array $headers = []): void
+    public function delete($tableExpression, array $identifier, array $types = [], array $headers = []): int
     {
         if (empty($identifier)) {
             throw InvalidArgumentException::fromEmptyCriteria();
@@ -68,43 +80,56 @@ class ConnectionWrapper extends Connection
             sprintf(self::SERVICE_OBJECT_ID_URL, $this->apiVersion(), $tableExpression, $param),
             $headers
         ));
+
+        return 1;
     }
 
     /**
      * {@inheritDoc}
      *
      * @param array<string, string> $headers contains the headers that will be used when sending the request.
+     *
+     * @throws JsonException
      */
-    public function insert($tableExpression, array $data, array $refs = [], array $headers = [])
+    public function insert($tableExpression, array $data, array $refs = [], array $headers = []): int
     {
         $request = new Request(
             'POST',
             sprintf(self::SERVICE_OBJECT_URL, $this->apiVersion(), $tableExpression),
             $headers,
-            json_encode($data)
+            json_encode($data, JSON_THROW_ON_ERROR)
         );
 
         if ($this->isTransactionActive()) {
             $this->addToBatchList($request, $refs);
 
-            return;
+            return 1;
         }
 
         $response     = $this->send($request);
-        $responseBody = json_decode($response->getBody()->getContents(), true);
+        $responseBody = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
         if ($responseBody['success'] !== true) {
             throw OperationFailed::insertFailed($data);
         }
+
+        return 1;
     }
 
     /**
      * {@inheritDoc}
      *
      * @param array<string, string> $headers contains the headers that will be used when sending the request.
+     *
+     * @throws JsonException
      */
-    public function update($tableExpression, array $data, array $identifier = [], array $refs = [], array $headers = [])
-    {
+    public function update(
+        $tableExpression,
+        array $data,
+        array $identifier = [],
+        array $refs = [],
+        array $headers = []
+    ): int {
         Assert::keyExists($identifier, 'Id');
 
         $param = $identifier['Id'] ?? (key($identifier) . '/' . $identifier[key($identifier)]);
@@ -113,13 +138,13 @@ class ConnectionWrapper extends Connection
             'PATCH',
             sprintf(self::SERVICE_OBJECT_ID_URL, $this->apiVersion(), $tableExpression, $param),
             $headers,
-            json_encode($data)
+            json_encode($data, JSON_THROW_ON_ERROR)
         );
 
         if ($this->isTransactionActive()) {
             $this->addToBatchList($request, $refs);
 
-            return;
+            return 1;
         }
 
         $response = $this->send($request);
@@ -127,15 +152,19 @@ class ConnectionWrapper extends Connection
         if ($response->getStatusCode() !== 204) {
             throw OperationFailed::updateFailed($data);
         }
+
+        return 1;
     }
 
     /**
      * @param mixed[] $refs
+     *
+     * @throws JsonException
      */
     private function addToBatchList(Request $request, array $refs): void
     {
         $command = [
-            'body' => json_decode($request->getBody()->getContents(), true),
+            'body' => json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR),
             'method' => $request->getMethod(),
             'url' => (string) $request->getUri(),
         ];
@@ -149,9 +178,11 @@ class ConnectionWrapper extends Connection
         $this->batchList[] = $command;
     }
 
-    public function beginTransaction(): void
+    public function beginTransaction(): bool
     {
         ++$this->transactionalLevel;
+
+        return true;
     }
 
     public function isTransactionActive(): bool
@@ -159,7 +190,11 @@ class ConnectionWrapper extends Connection
         return $this->transactionalLevel > 0;
     }
 
-    public function commit(): void
+    /**
+     * @throws ConnectionException
+     * @throws JsonException
+     */
+    public function commit(): bool
     {
         if ($this->transactionalLevel === 0) {
             throw ConnectionException::noActiveTransaction();
@@ -168,17 +203,17 @@ class ConnectionWrapper extends Connection
         --$this->transactionalLevel;
 
         if ($this->transactionalLevel !== 0) {
-            return;
+            return true;
         }
 
         $response = $this->send(new Request(
             'POST',
             sprintf(self::SERVICE_COMPOSITE_URL, $this->apiVersion()),
             [],
-            json_encode($this->compositeList())
+            json_encode($this->compositeList(), JSON_THROW_ON_ERROR)
         ));
 
-        $responseBody = json_decode($response->getBody()->getContents(), true);
+        $responseBody = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->resetBatchListAndTransactionLevel();
 
@@ -193,11 +228,15 @@ class ConnectionWrapper extends Connection
         if ($errors !== []) {
             throw OperationFailed::transactionFailed($errors);
         }
+
+        return true;
     }
 
-    public function rollBack(): void
+    public function rollBack(): bool
     {
         $this->resetBatchListAndTransactionLevel();
+
+        return true;
     }
 
     private function resetBatchListAndTransactionLevel(): void
@@ -222,6 +261,10 @@ class ConnectionWrapper extends Connection
         ];
     }
 
+    /**
+     * @throws GuzzleException
+     * @throws JsonException
+     */
     private function send(RequestInterface $request): ResponseInterface
     {
         $requestId = uniqid('requestId', false);
@@ -235,7 +278,7 @@ class ConnectionWrapper extends Connection
                     'method'    => $request->getMethod(),
                     'uri'       => (string) $request->getUri(),
                     'header'    => $request->getHeaders(),
-                    'body'      => json_decode($request->getBody()->getContents(), true),
+                    'body'      => json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR),
                 ],
             ], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
         }
@@ -250,7 +293,7 @@ class ConnectionWrapper extends Connection
                     'requestId'  => $requestId,
                     'statusCode' => $response->getStatusCode(),
                     'header'     => $response->getHeaders(),
-                    'body'       => json_decode($response->getBody()->getContents(), true),
+                    'body'       => json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR),
                 ],
             ], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
             $logger->stopQuery();
@@ -266,6 +309,9 @@ class ConnectionWrapper extends Connection
         return $this->getParams()['apiVersion'];
     }
 
+    /**
+     * @throws Exception
+     */
     private function getHttpClient(): ClientInterface
     {
         $this->connect();
