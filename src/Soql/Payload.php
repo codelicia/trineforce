@@ -76,12 +76,16 @@ final class Payload
     }
 
     /**
-     * @param mixed[][] $row
+     * @param mixed $row
      *
-     * @return mixed[][]
+     * @return mixed
      */
-    private static function removeRecordMetadata(array $row): array
+    private static function removeRecordMetadata($row)
     {
+        if (! is_array($row)) {
+            return $row;
+        }
+
         unset($row['attributes']);
 
         return $row;
