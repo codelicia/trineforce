@@ -10,7 +10,7 @@ use Codelicia\Soql\QueryBuilder;
 use Codelicia\Soql\SoqlConnection;
 use Codelicia\Soql\SoqlDriver;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -24,7 +24,7 @@ final class QueryBuilderTest extends TestCase
         $connection   = $this->createMock(Connection::class);
         $connection->expects(self::atLeastOnce())
             ->method('getDatabasePlatform')
-            ->willReturn(new MySqlPlatform());
+            ->willReturn(new MySQLPlatform());
 
         $queryBuilder = new QueryBuilder($connection);
 
@@ -62,7 +62,7 @@ final class QueryBuilderTest extends TestCase
         $connection   = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
         $soqlDriver->expects(self::atLeastOnce())
             ->method('getDatabasePlatform')
-            ->willReturn(new MySqlPlatform());
+            ->willReturn(new MySQLPlatform());
 
         $soqlDriver->expects(self::atLeastOnce())
             ->method('connect')
@@ -89,7 +89,7 @@ final class QueryBuilderTest extends TestCase
         $connection   = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
         $soqlDriver->expects(self::atLeastOnce())
             ->method('getDatabasePlatform')
-            ->willReturn(new MySqlPlatform());
+            ->willReturn(new MySQLPlatform());
 
         $soqlDriver->expects(self::atLeastOnce())
             ->method('connect')
@@ -117,7 +117,7 @@ final class QueryBuilderTest extends TestCase
 
         $soqlDriver->expects(self::atLeastOnce())
             ->method('getDatabasePlatform')
-            ->willReturn(new MySqlPlatform());
+            ->willReturn(new MySQLPlatform());
 
         $soqlDriver->expects(self::atLeastOnce())
             ->method('connect')

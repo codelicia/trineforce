@@ -8,7 +8,7 @@ use Codelicia\Soql\DriverError;
 use Codelicia\Soql\SoqlDriver;
 use Codelicia\Soql\SoqlError;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
@@ -31,6 +31,6 @@ final class SoqlDriverTest extends TestCase
         self::assertSame('soql', $driver->getName());
         self::assertNull($driver->getDatabase($this->createMock(Connection::class)));
         self::assertInstanceOf(DriverError::class, $driver->convert(new SoqlError('soql_exception'), null));
-        self::assertInstanceOf(MySqlPlatform::class, $driver->getDatabasePlatform());
+        self::assertInstanceOf(MySQLPlatform::class, $driver->getDatabasePlatform());
     }
 }
