@@ -7,6 +7,7 @@ namespace Codelicia\Soql;
 use GuzzleHttp\Exception\ClientException;
 
 use function array_map as map;
+use function is_array;
 use function json_decode;
 
 use const JSON_THROW_ON_ERROR;

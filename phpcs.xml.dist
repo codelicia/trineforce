@@ -10,5 +10,10 @@
 
     <file>src</file>
 
-    <rule ref="Doctrine" />
+    <rule ref="Doctrine">
+        <!-- Ignore type hinting check, it should be done by psalm -->
+        <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint"/>
+        <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint"/>
+        <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint"/>
+    </rule>
 </ruleset>
