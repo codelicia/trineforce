@@ -37,5 +37,10 @@
         "psr-4": {
             "CodeliciaTest\\": "tests/"
         }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }
