@@ -14,7 +14,7 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Query;
 
 use function array_key_exists;
@@ -46,9 +46,9 @@ class SoqlDriver implements Driver, ExceptionConverter
     }
 
     /** {@inheritdoc} */
-    public function getDatabasePlatform(): MySqlPlatform
+    public function getDatabasePlatform(): MySQLPlatform
     {
-        return new MySqlPlatform();
+        return new MySQLPlatform();
     }
 
     /** {@inheritdoc} */
