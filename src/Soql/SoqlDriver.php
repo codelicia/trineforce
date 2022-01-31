@@ -79,13 +79,17 @@ class SoqlDriver implements Driver, ExceptionConverter
             return $params['authorizedClientFactory'];
         }
 
-        return new HttpAuthorizedClientFactory(new HttpAccessTokenFactory(
+        return new HttpAuthorizedClientFactory(
+            new HttpAccessTokenFactory(
+                $params['salesforceInstance'],
+                $params['apiVersion'],
+                $params['consumerKey'],
+                $params['consumerSecret'],
+                $params['user'],
+                $params['password']
+            ),
             $params['salesforceInstance'],
-            $params['apiVersion'],
-            $params['consumerKey'],
-            $params['consumerSecret'],
-            $params['user'],
-            $params['password']
-        ), $params['salesforceInstance']);
+            $params['apiVersion']
+        );
     }
 }

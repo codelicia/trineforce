@@ -11,20 +11,18 @@ use function sprintf;
 
 final class HttpAuthorizedClientFactory implements AuthorizedClientFactory
 {
-    private AccessTokenFactory $accessTokenFactory;
-
-    private string $salesforceInstance;
-
-    public function __construct(AccessTokenFactory $accessTokenFactory, string $salesforceInstance)
-    {
-        $this->accessTokenFactory = $accessTokenFactory;
-        $this->salesforceInstance = $salesforceInstance;
+    public function __construct(
+        private AccessTokenFactory $accessTokenFactory,
+        private string $salesforceInstance,
+        private string $apiVersion
+    ) {
     }
 
     public function __invoke(): ClientInterface
     {
         return new Client([
             'base_uri' => $this->salesforceInstance,
+            'apiVersion' => $this->apiVersion,
             'headers' => [
                 'Authorization'      => sprintf('Bearer %s', $this->accessTokenFactory->__invoke()),
                 'X-PrettyPrint'      => '1',
