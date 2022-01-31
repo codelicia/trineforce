@@ -128,8 +128,13 @@ final class QueryBuilderTest extends TestCase
             ->willReturn($httpClient = $this->createMock(Client::class));
 
         $httpClient->expects(self::once())
+            ->method('getConfig')
+            ->with('apiVersion')
+            ->willReturn('v80.0');
+
+        $httpClient->expects(self::once())
             ->method('request')
-            ->with('GET', '/services/data/v20.0/query?q=SELECT Id, (SELECT Name FROM Contact WHERE Id = \'123\') FROM Account LIMIT 1')
+            ->with('GET', '/services/data/v80.0/query?q=SELECT Id, (SELECT Name FROM Contact WHERE Id = \'123\') FROM Account LIMIT 1')
             ->willReturn($response = $this->createMock(ResponseInterface::class));
 
         $response->expects(self::once())

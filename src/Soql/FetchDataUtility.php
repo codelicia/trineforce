@@ -10,6 +10,7 @@ use GuzzleHttp\Exception\ClientException;
 use function assert;
 use function current;
 use function json_decode;
+use function sprintf;
 
 use const JSON_THROW_ON_ERROR;
 
@@ -28,8 +29,9 @@ final class FetchDataUtility
 
     private function doFetch(ClientInterface $client, string $statement)
     {
-        // TODO: how to deal with different versions? Maybe `driverOptions`?
-        $request = $client->request('GET', '/services/data/v20.0/query?q=' . $statement);
+        $apiVersion = $client->getConfig('apiVersion');
+
+        $request = $client->request('GET', sprintf('/services/data/%s/query?q=%s', $apiVersion, $statement));
 
         return json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
     }
