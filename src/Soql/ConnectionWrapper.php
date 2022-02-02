@@ -272,13 +272,14 @@ class ConnectionWrapper extends Connection
         $http      = $this->getHttpClient();
 
         if ($logger) {
+            $contents = $request->getBody()->getContents();
             $logger->startQuery(json_encode([
                 'request' => [
                     'requestId' => $requestId,
                     'method'    => $request->getMethod(),
                     'uri'       => (string) $request->getUri(),
                     'header'    => $request->getHeaders(),
-                    'body'      => json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR),
+                    'body'      => json_decode($contents === '' ? 'null' : $contents, true, 512, JSON_THROW_ON_ERROR),
                 ],
             ], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
         }
@@ -288,12 +289,13 @@ class ConnectionWrapper extends Connection
         $response = $http->send($request);
 
         if ($logger) {
+            $contents = $response->getBody()->getContents();
             $logger->startQuery(json_encode([
                 'response' => [
                     'requestId'  => $requestId,
                     'statusCode' => $response->getStatusCode(),
                     'header'     => $response->getHeaders(),
-                    'body'       => json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR),
+                    'body'       => json_decode($contents === '' ? 'null' : $contents, true, 512, JSON_THROW_ON_ERROR),
                 ],
             ], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
             $logger->stopQuery();
