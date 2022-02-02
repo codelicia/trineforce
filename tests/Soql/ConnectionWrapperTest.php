@@ -14,6 +14,8 @@ use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Doctrine\DBAL\Logging\SQLLogger;
+
 use function file_get_contents;
 
 final class ConnectionWrapperTest extends TestCase
@@ -102,6 +104,31 @@ final class ConnectionWrapperTest extends TestCase
             ['Name' => 'Pay as you go Opportunity'],
             ['Id' => 123],
             [],
+            ['X-Unit-Testing' => 'Yes']
+        );
+    }
+
+    /** @test */
+    public function it_should_deal_with_decoding_empty_string(): void
+    {
+        $this->connection->getConfiguration()->setSQLLogger(new class() implements SQLLogger {
+            public function startQuery($sql, ?array $params = null, ?array $types = null) {}
+            public function stopQuery() {}
+        });
+
+        $this->client->expects(self::once())->method('send')
+            ->with(self::assertHttpHeaderIsPropagated())
+            ->willReturn($this->response);
+
+        $this->response->expects(self::exactly(2))->method('getBody')->willReturn($this->stream);
+
+        $this->stream->expects(self::once())->method('getContents')->willReturn('');
+        $this->stream->expects(self::once())->method('rewind');
+
+        $this->connection->delete(
+            'User',
+            ['Id' => 123],
+            ['ref' => '1234'],
             ['X-Unit-Testing' => 'Yes']
         );
     }
