@@ -30,4 +30,10 @@ final class OperationFailed extends RuntimeException implements SoqlException
     {
         return new self(sprintf('Transaction failed with messages: %s', json_encode($errors, JSON_THROW_ON_ERROR)));
     }
+
+    /** @param mixed[] $payload */
+    public static function upsertFailed(array $payload): self
+    {
+        return new self(sprintf('Upsert failed with payload %s', json_encode($payload)));
+    }
 }

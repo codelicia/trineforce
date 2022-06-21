@@ -195,6 +195,28 @@ final class ConnectionWrapperTest extends TestCase
         $this->connection->commit();
     }
 
+    /** @test */
+    public function upsert_with_no_transaction(): void
+    {
+        $this->client->expects(self::once())->method('send')
+            ->with(self::assertHttpHeaderIsPropagated())
+            ->willReturn($this->response);
+
+        $this->response->expects(self::once())->method('getBody')->willReturn($this->stream);
+        $this->response->expects(self::once())->method('getStatusCode')->willReturn(201);
+
+        $this->stream->expects(self::once())->method('rewind');
+
+        $this->connection->upsert(
+            'User',
+            'ExternalId__c',
+            '12345',
+            ['Name' => 'Pay as you go Opportunity'],
+            [],
+            ['X-Unit-Testing' => 'Yes']
+        );
+    }
+
     private static function assertHttpHeaderIsPropagated(): Callback
     {
         return self::callback(static function (Request $request) : bool {
