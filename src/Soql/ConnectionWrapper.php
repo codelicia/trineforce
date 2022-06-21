@@ -23,6 +23,7 @@ use function array_key_exists;
 use function array_map;
 use function array_merge;
 use function count;
+use function in_array;
 use function json_decode;
 use function json_encode;
 use function key;
@@ -34,9 +35,10 @@ use const JSON_THROW_ON_ERROR;
 
 class ConnectionWrapper extends Connection
 {
-    private const SERVICE_OBJECT_URL    = '/services/data/%s/sobjects/%s';
-    private const SERVICE_OBJECT_ID_URL = '/services/data/%s/sobjects/%s/%s';
-    private const SERVICE_COMPOSITE_URL = '/services/data/%s/composite';
+    private const SERVICE_OBJECT_URL             = '/services/data/%s/sobjects/%s';
+    private const SERVICE_OBJECT_ID_URL          = '/services/data/%s/sobjects/%s/%s';
+    private const SERVICE_OBJECT_EXTERNAL_ID_URL = '/services/data/%s/sobjects/%s/%s/%s';
+    private const SERVICE_COMPOSITE_URL          = '/services/data/%s/composite';
 
     private int $transactionalLevel = 0;
 
@@ -151,6 +153,51 @@ class ConnectionWrapper extends Connection
 
         if ($response->getStatusCode() !== 204) {
             throw OperationFailed::updateFailed($data);
+        }
+
+        return 1;
+    }
+
+    /**
+     * @param string                $externalIdName  Name of the external id of the object in Salesforce
+     * @param string                $externalIdValue Value of the external id of the object in Salesforce
+     * @param array<string, string> $headers         contains the headers that will be used when sending the request.
+     *
+     * @throws JsonException
+     */
+    public function upsert(
+        string $tableExpression,
+        string $externalIdName,
+        string $externalIdValue,
+        array $data,
+        array $refs = [],
+        array $headers = []
+    ): int {
+        $uri = sprintf(
+            self::SERVICE_OBJECT_EXTERNAL_ID_URL,
+            $this->apiVersion(),
+            $tableExpression,
+            $externalIdName,
+            $externalIdValue
+        );
+
+        $request = new Request(
+            'PATCH',
+            $uri,
+            $headers,
+            json_encode($data, JSON_THROW_ON_ERROR)
+        );
+
+        if ($this->isTransactionActive()) {
+            $this->addToBatchList($request, $refs);
+
+            return 1;
+        }
+
+        $response = $this->send($request);
+
+        if (! in_array($response->getStatusCode(), [200, 201, 204])) {
+            throw OperationFailed::upsertFailed($data);
         }
 
         return 1;
