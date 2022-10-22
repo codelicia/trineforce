@@ -14,30 +14,14 @@ use const JSON_THROW_ON_ERROR;
 
 final class Payload
 {
-    private bool $success;
-
-    private int $totalSize;
-
-    /** @var mixed[][] */
-    private array $values;
-
-    private ?string $errorMessage;
-
-    private ?string $errorCode;
-
     /** @param mixed[] $values */
     public function __construct(
-        bool $success,
-        int $totalSize,
-        array $values,
-        ?string $errorMessage = null,
-        ?string $errorCode = null
+        private bool $success,
+        private int $totalSize,
+        private array $values,
+        private string|null $errorMessage = null,
+        private string|null $errorCode = null,
     ) {
-        $this->success      = $success;
-        $this->totalSize    = $totalSize;
-        $this->values       = $values;
-        $this->errorMessage = $errorMessage;
-        $this->errorCode    = $errorCode;
     }
 
     /** @param mixed[] $values */
@@ -46,7 +30,7 @@ final class Payload
         return new self(
             $values['done'],
             $values['totalSize'],
-            map([self::class, 'removeRecordMetadata'], $values['records'])
+            map([self::class, 'removeRecordMetadata'], $values['records']),
         );
     }
 
@@ -60,7 +44,7 @@ final class Payload
             0,
             [],
             $firstError['message'],
-            $firstError['errorCode']
+            $firstError['errorCode'],
         );
     }
 
@@ -72,7 +56,7 @@ final class Payload
             0,
             [],
             $values['message'],
-            $values['errorCode']
+            $values['errorCode'],
         );
     }
 
@@ -108,12 +92,12 @@ final class Payload
         return $this->success;
     }
 
-    public function getErrorMessage(): ?string
+    public function getErrorMessage(): string|null
     {
         return $this->errorMessage;
     }
 
-    public function getErrorCode(): ?string
+    public function getErrorCode(): string|null
     {
         return $this->errorCode;
     }

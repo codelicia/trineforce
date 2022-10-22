@@ -17,16 +17,17 @@
         "php": ">=8.1",
         "ext-json": "*",
         "ext-pdo": "*",
-        "beberlei/assert": "^3.2",
-        "doctrine/orm": "^2.10",
-        "doctrine/dbal": "^3.1",
+        "beberlei/assert": "^v3.3.2",
+        "doctrine/dbal": "^3.4.5",
+        "doctrine/orm": "^2.13.3",
         "guzzlehttp/guzzle": "^6.0 | ^7.0"
     },
     "require-dev": {
-        "doctrine/coding-standard": "^8.2.1",
+        "doctrine/coding-standard": "^10.0.0",
+        "malukenho/mcbumpface": "^1.1.5",
         "phpunit/phpunit": "^8.3 | ^9.0",
         "roave/security-advisories": "dev-master",
-        "staabm/annotate-pull-request-from-checkstyle": "^1.4"
+        "staabm/annotate-pull-request-from-checkstyle": "^1.8.3"
     },
     "autoload": {
         "psr-4": {
@@ -39,8 +40,10 @@
         }
     },
     "config": {
+        "sort-packages": true,
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "malukenho/mcbumpface": true
         }
     }
 }

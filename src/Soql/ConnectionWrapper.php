@@ -50,8 +50,12 @@ class ConnectionWrapper extends Connection
         return new QueryBuilder($this);
     }
 
-    public function executeQuery(string $sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
-    {
+    public function executeQuery(
+        string $sql,
+        array $params = [],
+        $types = [],
+        QueryCacheProfile|null $qcp = null,
+    ): Result {
         $statement = new SoqlStatement($this->getHttpClient(), $sql);
 
         return new Result($statement->execute($params), $this);
@@ -80,7 +84,7 @@ class ConnectionWrapper extends Connection
         $this->send(new Request(
             'DELETE',
             sprintf(self::SERVICE_OBJECT_ID_URL, $this->apiVersion(), $tableExpression, $param),
-            $headers
+            $headers,
         ));
 
         return 1;
@@ -99,7 +103,7 @@ class ConnectionWrapper extends Connection
             'POST',
             sprintf(self::SERVICE_OBJECT_URL, $this->apiVersion(), $tableExpression),
             $headers,
-            json_encode($data, JSON_THROW_ON_ERROR)
+            json_encode($data, JSON_THROW_ON_ERROR),
         );
 
         if ($this->isTransactionActive()) {
@@ -130,7 +134,7 @@ class ConnectionWrapper extends Connection
         array $data,
         array $identifier = [],
         array $refs = [],
-        array $headers = []
+        array $headers = [],
     ): int {
         Assert::keyExists($identifier, 'Id');
 
@@ -140,7 +144,7 @@ class ConnectionWrapper extends Connection
             'PATCH',
             sprintf(self::SERVICE_OBJECT_ID_URL, $this->apiVersion(), $tableExpression, $param),
             $headers,
-            json_encode($data, JSON_THROW_ON_ERROR)
+            json_encode($data, JSON_THROW_ON_ERROR),
         );
 
         if ($this->isTransactionActive()) {
@@ -171,21 +175,21 @@ class ConnectionWrapper extends Connection
         string $externalIdValue,
         array $data,
         array $refs = [],
-        array $headers = []
+        array $headers = [],
     ): int {
         $uri = sprintf(
             self::SERVICE_OBJECT_EXTERNAL_ID_URL,
             $this->apiVersion(),
             $tableExpression,
             $externalIdName,
-            $externalIdValue
+            $externalIdValue,
         );
 
         $request = new Request(
             'PATCH',
             $uri,
             $headers,
-            json_encode($data, JSON_THROW_ON_ERROR)
+            json_encode($data, JSON_THROW_ON_ERROR),
         );
 
         if ($this->isTransactionActive()) {
@@ -257,7 +261,7 @@ class ConnectionWrapper extends Connection
             'POST',
             sprintf(self::SERVICE_COMPOSITE_URL, $this->apiVersion()),
             [],
-            json_encode($this->compositeList(), JSON_THROW_ON_ERROR)
+            json_encode($this->compositeList(), JSON_THROW_ON_ERROR),
         ));
 
         $responseBody = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
@@ -358,9 +362,7 @@ class ConnectionWrapper extends Connection
         return $this->getParams()['apiVersion'];
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function getHttpClient(): ClientInterface
     {
         $this->connect();

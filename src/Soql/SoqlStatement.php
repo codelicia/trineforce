@@ -18,9 +18,7 @@ use function str_replace;
 
 class SoqlStatement implements Statement
 {
-    protected ClientInterface $connection;
-
-    protected ?Payload $payload = null;
+    protected Payload|null $payload = null;
 
     protected string $statement;
 
@@ -35,7 +33,7 @@ class SoqlStatement implements Statement
 
     private FetchDataUtility $fetchUtility;
 
-    public function __construct(ClientInterface $connection, string $query)
+    public function __construct(protected ClientInterface $connection, string $query)
     {
         $parser  = new Parser(false);
         $visitor = new ConvertPositionalToNamedPlaceholders();
@@ -43,7 +41,6 @@ class SoqlStatement implements Statement
         $parser->parse($query, $visitor);
 
         $this->fetchUtility = new FetchDataUtility();
-        $this->connection   = $connection;
         $this->paramMap     = $visitor->getParameterMap();
         $this->statement    = $visitor->getSQL();
         $this->boundValues  = [];
@@ -86,7 +83,7 @@ class SoqlStatement implements Statement
         if ($this->boundValues !== []) {
             $values = BoundValuesSeparator::separateBoundValues(
                 $this->boundValues,
-                $this->types
+                $this->types,
             );
 
             $this->statement = str_replace(array_keys($values), $values, $this->statement);
