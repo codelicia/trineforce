@@ -20,7 +20,8 @@
         "beberlei/assert": "^v3.3.2",
         "doctrine/dbal": "^3.4.5",
         "doctrine/orm": "^2.13.3",
-        "guzzlehttp/guzzle": "^6.0 | ^7.0"
+        "guzzlehttp/guzzle": "^6.0 | ^7.0",
+        "webmozart/assert": "^1.11.0"
     },
     "require-dev": {
         "doctrine/coding-standard": "^10.0.0",
