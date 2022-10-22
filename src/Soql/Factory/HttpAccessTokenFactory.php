@@ -15,38 +15,20 @@ use const JSON_THROW_ON_ERROR;
 
 final class HttpAccessTokenFactory implements AccessTokenFactory
 {
-    private string $salesforceInstance;
-
-    private string $apiVersion;
-
-    private string $consumerKey;
-
-    private string $consumerSecret;
-
-    private string $username;
-
-    private string $password;
-
-    private ?string $accessToken;
+    private string|null $accessToken;
 
     public function __construct(
-        string $salesforceInstance,
-        string $apiVersion,
-        string $consumerKey,
-        string $consumerSecret,
-        string $username,
-        string $password
+        private string $salesforceInstance,
+        private string $apiVersion,
+        private string $consumerKey,
+        private string $consumerSecret,
+        private string $username,
+        private string $password,
     ) {
-        $this->salesforceInstance = $salesforceInstance;
-        $this->apiVersion         = $apiVersion;
-        $this->consumerKey        = $consumerKey;
-        $this->consumerSecret     = $consumerSecret;
-        $this->username           = $username;
-        $this->password           = $password;
-        $this->accessToken        = null;
+        $this->accessToken = null;
     }
 
-    public function __invoke(?ClientInterface $client = null): string
+    public function __invoke(ClientInterface|null $client = null): string
     {
         if ($this->accessToken !== null) {
             return $this->accessToken;

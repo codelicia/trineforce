@@ -11,11 +11,8 @@ use PDOException;
 
 final class Result implements DriverResultInterface
 {
-    private SoqlStatement $statement;
-
-    public function __construct(SoqlStatement $statement)
+    public function __construct(private SoqlStatement $statement)
     {
-        $this->statement = $statement;
     }
 
     /** {@inheritDoc} */

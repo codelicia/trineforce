@@ -30,7 +30,7 @@ final class QueryBuilder extends DbalQueryBuilder
             implode(', ', $columns),
             $table,
             $where ? ' WHERE ' . $where : '',
-            $extra ? ' ' . $extra : ''
+            $extra ? ' ' . $extra : '',
         );
 
         return $this->addSelect($query);

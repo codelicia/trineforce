@@ -13,19 +13,19 @@ use function assert;
 
 class Result extends DBALResult
 {
-    private DriverResult $result;
+    private DriverResult $storedResult;
 
     public function __construct(DriverResult $result, Connection $connection)
     {
-        parent::__construct($result, $connection);
+        $this->storedResult = $result;
 
-        $this->result = $result;
+        parent::__construct($result, $connection);
     }
 
     public function getDriverResult(): SoqlDriverResult
     {
-        assert($this->result instanceof SoqlDriverResult);
+        assert($this->storedResult instanceof SoqlDriverResult);
 
-        return $this->result;
+        return $this->storedResult;
     }
 }

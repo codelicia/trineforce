@@ -14,7 +14,7 @@ final class HttpAuthorizedClientFactory implements AuthorizedClientFactory
     public function __construct(
         private AccessTokenFactory $accessTokenFactory,
         private string $salesforceInstance,
-        private string $apiVersion
+        private string $apiVersion,
     ) {
     }
 

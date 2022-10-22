@@ -15,11 +15,8 @@ use function addslashes;
 
 class SoqlConnection implements Connection
 {
-    private AuthorizedClientFactory $authorizedClientFactory;
-
-    public function __construct(AuthorizedClientFactory $authorizedClientFactory)
+    public function __construct(private AuthorizedClientFactory $authorizedClientFactory)
     {
-        $this->authorizedClientFactory = $authorizedClientFactory;
     }
 
     /** {@inheritDoc} */

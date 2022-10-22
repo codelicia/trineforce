@@ -33,7 +33,7 @@ class SoqlDriver implements Driver, ExceptionConverter
     }
 
     /** {@inheritdoc} */
-    public function convert(Exception $exception, ?Query $query): DriverException
+    public function convert(Exception $exception, Query|null $query): DriverException
     {
         // fixme
         return DriverError::withException($exception);
@@ -86,10 +86,10 @@ class SoqlDriver implements Driver, ExceptionConverter
                 $params['consumerKey'],
                 $params['consumerSecret'],
                 $params['user'],
-                $params['password']
+                $params['password'],
             ),
             $params['salesforceInstance'],
-            $params['apiVersion']
+            $params['apiVersion'],
         );
     }
 }
