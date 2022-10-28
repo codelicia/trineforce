@@ -32,3 +32,6 @@ jobs:
 
     - name: Run PhpCs
       run: ./vendor/bin/phpcs -q --report=checkstyle | ./vendor/bin/cs2pr
+
+    - name: Check dependency usage
+      run: ./vendor/bin/composer-require-checker check ./composer.json
