@@ -21,7 +21,8 @@
         "doctrine/dbal": "^3.5.1",
         "doctrine/orm": "^2.13.3",
         "guzzlehttp/guzzle": "^6.0 | ^7.0",
-        "webmozart/assert": "^1.11.0"
+        "guzzlehttp/psr7": "^2.4.3",
+        "psr/http-message": "^1.0.1"
     },
     "require-dev": {
         "doctrine/coding-standard": "^10.0.0",

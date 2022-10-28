@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
+use Assert\Assertion;
 use Codelicia\Soql\DBAL\Result;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
@@ -16,7 +17,6 @@ use GuzzleHttp\Psr7\Request;
 use JsonException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Webmozart\Assert\Assert;
 
 use function array_filter;
 use function array_key_exists;
@@ -136,7 +136,7 @@ class ConnectionWrapper extends Connection
         array $refs = [],
         array $headers = [],
     ): int {
-        Assert::keyExists($identifier, 'Id');
+        Assertion::keyExists($identifier, 'Id');
 
         $param = $identifier['Id'] ?? (key($identifier) . '/' . $identifier[key($identifier)]);
 
@@ -221,7 +221,7 @@ class ConnectionWrapper extends Connection
         ];
 
         if ($refs !== []) {
-            Assert::keyExists($refs, 'referenceId');
+            Assertion::keyExists($refs, 'referenceId');
 
             $command = array_merge($command, ['referenceId' => $refs['referenceId']]);
         }
