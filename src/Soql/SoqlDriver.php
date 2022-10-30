@@ -24,6 +24,11 @@ class SoqlDriver implements Driver, ExceptionConverter
     /** {@inheritDoc} */
     public function connect(array $params): Connection
     {
+        // Configuration can also be passed as driverOptions. Needed for doctrine-bundle compatibility.
+        if (array_key_exists('driverOptions', $params)) {
+            $params += $params['driverOptions'];
+        }
+
         return new SoqlConnection($this->getAuthorizedClientFactory($params));
     }
 

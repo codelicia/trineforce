@@ -6,7 +6,7 @@ and interact with a Salesforce instance using the Doctrine DBAL layer.
 
 Now one can forget about Salesforce and have a nice `repository/query object`
 integration on one's architecture without hurting that much on the usual
-project structure. 
+project structure.
 
 ### Installation
 
@@ -14,7 +14,7 @@ Use `composer` to install this package as bellow:
 
 ```shell script
 $ composer require codelicia/trineforce
-``` 
+```
 
 ### Configuration
 
@@ -24,7 +24,7 @@ to make it work.
 
 When creating a new `Connection`, you should also provide the configuration
 keys for `salesforceInstance`, `consumerKey`, `consumerSecret` and point to
-the right `driverClass`. The usual `user` and `password` are also required. 
+the right `driverClass`. The usual `user` and `password` are also required.
 
 ```php
 $config = new Configuration();
@@ -41,7 +41,7 @@ $connectionParams = [
 
 /** @var \Codelicia\Soql\ConnectionWrapper $conn */
 $conn = DriverManager::getConnection($connectionParams, $config);
-``` 
+```
 
 * `user` provides the login, which is usually an email to access the salesforce
   instance.
@@ -55,6 +55,24 @@ $conn = DriverManager::getConnection($connectionParams, $config);
 
 By setting up the `wrapperClass`, we can make use of a proper `QueryBuild` that allow
 `JOIN` in the Salesforce format.
+
+When using the doctrine bundle and the dbal is configured through yaml the options should
+be passed in a different way for the validation that the bundle does.
+
+```yaml
+doctrine:
+    dbal:
+        driver: soql
+        user: '%env(resolve:SALESFORCE_USERNAME)%'
+        password: '%env(resolve:SALESFORCE_PASSWORD)%'
+        driver_class: '\Codelicia\Soql\SoqlDriver'
+        wrapper_class: '\Codelicia\Soql\ConnectionWrapper'
+        options:
+            salesforceInstance: '%env(resolve:SALESFORCE_ENDPOINT)%'
+            apiVersion: v56.0
+            consumerKey: '%env(resolve:SALESFORCE_CLIENT_ID)%'
+            consumerSecret: '%env(resolve:SALESFORCE_CLIENT_SECRET)%'
+```
 
 ### Using DBAL
 
