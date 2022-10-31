@@ -6,14 +6,14 @@ namespace Codelicia\Soql;
 
 use Codelicia\Soql\Driver\Result;
 use Codelicia\Soql\Factory\AuthorizedClientFactory;
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use GuzzleHttp\ClientInterface;
 use PDO;
 
 use function addslashes;
 
-class SoqlConnection implements Connection
+class SoqlConnection implements ServerInfoAwareConnection
 {
     public function __construct(private AuthorizedClientFactory $authorizedClientFactory)
     {
@@ -78,5 +78,10 @@ class SoqlConnection implements Connection
     public function rollBack(): bool
     {
         return true;
+    }
+
+    public function getServerVersion(): string
+    {
+        return $this->getHttpClient()->getConfig('apiVersion');
     }
 }
