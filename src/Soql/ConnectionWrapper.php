@@ -359,7 +359,7 @@ class ConnectionWrapper extends Connection
 
     private function apiVersion(): string
     {
-        return $this->getParams()['apiVersion'];
+        return $this->getParams()['apiVersion'] ?? $this->getParams()['driverOptions']['apiVersion'];
     }
 
     /** @throws Exception */
