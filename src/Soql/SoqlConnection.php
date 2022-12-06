@@ -30,6 +30,11 @@ class SoqlConnection implements ServerInfoAwareConnection
         return $this->authorizedClientFactory->__invoke();
     }
 
+    public function getNativeConnection(): ClientInterface
+    {
+        return $this->authorizedClientFactory->__invoke();
+    }
+
     /** {@inheritDoc} */
     public function query(string $sql): ResultInterface
     {

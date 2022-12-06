@@ -367,6 +367,6 @@ class ConnectionWrapper extends Connection
     {
         $this->connect();
 
-        return $this->_conn->getHttpClient();
+        return $this->_conn->getNativeConnection();
     }
 }
