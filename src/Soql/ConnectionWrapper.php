@@ -18,8 +18,8 @@ use GuzzleHttp\Psr7\Request;
 use JsonException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-
 use ReturnTypeWillChange;
+
 use function array_filter;
 use function array_key_exists;
 use function array_map;
