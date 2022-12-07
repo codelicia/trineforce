@@ -6,6 +6,7 @@ namespace CodeliciaTest\Soql;
 
 use BadMethodCallException;
 use Codelicia\Soql\ConnectionWrapper;
+use Codelicia\Soql\Factory\Http\RequestThrottler;
 use Codelicia\Soql\QueryBuilder;
 use Codelicia\Soql\SoqlConnection;
 use Codelicia\Soql\SoqlDriver;
@@ -124,7 +125,7 @@ final class QueryBuilderTest extends TestCase
             ->willReturn($client = $this->createMock(SoqlConnection::class));
 
         $client->expects(self::once())
-            ->method('getHttpClient')
+            ->method('getNativeConnection')
             ->willReturn($httpClient = $this->createMock(Client::class));
 
         $httpClient->expects(self::once())
@@ -136,6 +137,11 @@ final class QueryBuilderTest extends TestCase
             ->method('request')
             ->with('GET', '/services/data/v80.0/query?q=SELECT Id, (SELECT Name FROM Contact WHERE Id = \'123\') FROM Account LIMIT 1')
             ->willReturn($response = $this->createMock(ResponseInterface::class));
+
+        $response
+            ->method('getHeaderLine')
+            ->with(RequestThrottler::HEADER)
+            ->willReturn('api-usage=1/100');
 
         $response->expects(self::once())
             ->method('getBody')

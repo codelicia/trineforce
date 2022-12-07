@@ -11,7 +11,7 @@ class SoqlError extends \Exception implements Exception
 {
     public static function fromPayloadWithClientException(Payload $payload): self
     {
-        return new self($payload->getErrorMessage(), $payload->getErrorCode());
+        return new self($payload->getErrorMessage(), (int) $payload->getErrorCode());
     }
 
     public function getSQLState(): void

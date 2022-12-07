@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
+use Codelicia\Soql\Factory\Http\RequestThrottler;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 
@@ -31,9 +32,11 @@ final class FetchDataUtility
     {
         $apiVersion = $client->getConfig('apiVersion');
 
-        $request = $client->request('GET', sprintf('/services/data/%s/query?q=%s', $apiVersion, $statement));
+        $response = $client->request('GET', sprintf('/services/data/%s/query?q=%s', $apiVersion, $statement));
 
-        return json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+        RequestThrottler::of($response->getHeaderLine(RequestThrottler::HEADER));
+
+        return json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
     }
 
     public function fetch(ClientInterface $client, string $statement): array

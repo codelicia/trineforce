@@ -6,15 +6,16 @@ namespace CodeliciaTest\Soql;
 
 use Codelicia\Soql\ConnectionWrapper;
 use Codelicia\Soql\Factory\AuthorizedClientFactory;
-use Codelicia\Soql\QueryBuilder;
+use Codelicia\Soql\Factory\Http\RequestThrottler;
 use Codelicia\Soql\SoqlDriver;
+use CodeliciaTest\Soql\Stubs\ConnectionWrapperFactory;
+use Doctrine\DBAL\Logging\SQLLogger;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Doctrine\DBAL\Logging\SQLLogger;
 
 use function file_get_contents;
 
@@ -27,26 +28,23 @@ final class ConnectionWrapperTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->client = $this->createMock(ClientInterface::class);
+        $this->client   = $this->createMock(ClientInterface::class);
         $this->response = $this->createMock(ResponseInterface::class);
-        $this->stream = $this->createMock(StreamInterface::class);
+        $this->stream   = $this->createMock(StreamInterface::class);
 
-        $this->connection = new ConnectionWrapper([
-            'salesforceInstance'      => 'it_is_key_to_have_it',
-            'apiVersion'              => 'api-version-456',
-            'user'                    => 'foo',
-            'password'                => 'foo',
-            'consumerKey'             => 'foo',
-            'consumerSecret'          => 'foo',
-            'authorizedClientFactory' => $this->httpResponseMock(),
-        ], new SoqlDriver());
+        $this->response
+            ->method('getHeaderLine')
+            ->with(RequestThrottler::HEADER)
+            ->willReturn('api-usage=1/100');
+
+        $this->connection = ConnectionWrapperFactory::create($this->client);
     }
 
     /** @test */
     public function it_is_using_the_right_api_version(): void
     {
         $this->client->expects(self::once())->method('send')
-            ->with(self::callback(static function (Request $request) : bool {
+            ->with(self::callback(static function (Request $request): bool {
                 self::assertSame('/services/data/api-version-456/sobjects/User', $request->getUri()->getPath());
 
                 return true;
@@ -83,7 +81,7 @@ final class ConnectionWrapperTest extends TestCase
             'User',
             ['Name' => 'Pay as you go Opportunity'],
             ['Id' => 123],
-            ['X-Unit-Testing' => 'Yes']
+            ['X-Unit-Testing' => 'Yes'],
         );
     }
 
@@ -104,16 +102,21 @@ final class ConnectionWrapperTest extends TestCase
             ['Name' => 'Pay as you go Opportunity'],
             ['Id' => 123],
             [],
-            ['X-Unit-Testing' => 'Yes']
+            ['X-Unit-Testing' => 'Yes'],
         );
     }
 
     /** @test */
     public function it_should_deal_with_decoding_empty_string(): void
     {
-        $this->connection->getConfiguration()->setSQLLogger(new class() implements SQLLogger {
-            public function startQuery($sql, ?array $params = null, ?array $types = null) {}
-            public function stopQuery() {}
+        $this->connection->getConfiguration()->setSQLLogger(new class () implements SQLLogger {
+            public function startQuery($sql, array|null $params = null, array|null $types = null)
+            {
+            }
+
+            public function stopQuery()
+            {
+            }
         });
 
         $this->client->expects(self::once())->method('send')
@@ -129,7 +132,7 @@ final class ConnectionWrapperTest extends TestCase
             'User',
             ['Id' => 123],
             ['ref' => '1234'],
-            ['X-Unit-Testing' => 'Yes']
+            ['X-Unit-Testing' => 'Yes'],
         );
     }
 
@@ -148,7 +151,7 @@ final class ConnectionWrapperTest extends TestCase
             'User',
             ['Id' => 123],
             ['ref' => '1234'],
-            ['X-Unit-Testing' => 'Yes']
+            ['X-Unit-Testing' => 'Yes'],
         );
     }
 
@@ -170,7 +173,7 @@ final class ConnectionWrapperTest extends TestCase
     public function transactional_should_throws_exception_when_error_occurs(): void
     {
         $this->client->expects(self::once())->method('send')
-            ->with(self::callback(static function (Request $request) : bool {
+            ->with(self::callback(static function (Request $request): bool {
                 self::assertSame('/services/data/api-version-456/composite', $request->getUri()->getPath());
 
                 return true;
@@ -213,33 +216,16 @@ final class ConnectionWrapperTest extends TestCase
             '12345',
             ['Name' => 'Pay as you go Opportunity'],
             [],
-            ['X-Unit-Testing' => 'Yes']
+            ['X-Unit-Testing' => 'Yes'],
         );
     }
 
     private static function assertHttpHeaderIsPropagated(): Callback
     {
-        return self::callback(static function (Request $request) : bool {
+        return self::callback(static function (Request $request): bool {
             self::assertSame(['X-Unit-Testing' => ['Yes']], $request->getHeaders());
 
             return true;
         });
-    }
-
-    private function httpResponseMock(): AuthorizedClientFactory
-    {
-        return new class($this->client) implements AuthorizedClientFactory {
-            private ClientInterface $client;
-
-            public function __construct(ClientInterface $client)
-            {
-                $this->client = $client;
-            }
-
-            public function __invoke(): ClientInterface
-            {
-                return $this->client;
-            }
-        };
     }
 }
