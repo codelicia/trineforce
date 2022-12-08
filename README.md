@@ -162,6 +162,23 @@ $conn->transactional(static function () use ($conn) {
 });
 ```
 
+### 🚫 Known Limitations
+
+As of today, we cannot consume a `sObject` using the `queryBuilder` to get all fields from
+the `sObject`. That is because Salesforce doesn't accept `SELECT *` as a valid query.
+
+The workaround that issue is to do a `GET` request to specific resources, then can grab all
+data related to that resource.
+
+```php
+$this->connection
+    ->getNativeConnection()
+    ->request(
+        'GET',
+        sprintf('/services/data/v40.0/sobjects/Opportunity/%s', $id)
+    );
+```
+
 ### Contributors ✨
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
