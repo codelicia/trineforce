@@ -179,6 +179,34 @@ $this->connection
     );
 ```
 
+### 📈 Diagram
+
+```mermaid
+%%{init: {'sequence': { 'mirrorActors': false, 'rightAngles': true, 'messageAlign': 'center', 'actorFontSize': 20, 'actorFontWeight': 900, 'noteFontSize': 18, 'noteFontWeight': 600, 'messageFontSize': 20}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'actorBorder': '#D86613', 'activationBorderColor': '#232F3E', 'activationBkgColor': '#D86613','noteBorderColor': '#232F3E', 'signalColor': 'white', 'signalTextColor': 'gray', 'sequenceNumberColor': '#232F3E'}}}%%
+sequenceDiagram
+    autonumber
+    Note left of ConnectionWrapper: Everything starts with <br/>the ConnectionWrapper.
+    ConnectionWrapper->>QueryBuilder: createQueryBuilder()
+    activate QueryBuilder
+    alt 
+        QueryBuilder->>QueryBuilder: execute() <br>Calls private executeQuery()<br>method
+    end
+    QueryBuilder->>+ConnectionWrapper: executeQuery()
+    deactivate QueryBuilder
+    ConnectionWrapper->>SoqlStatement: execute() 
+    SoqlStatement->>+\Doctrine\DBAL\Driver\Result: execute()
+    ConnectionWrapper->>+\Codelicia\Soql\DBAL\Result: new
+    \Doctrine\DBAL\Driver\Result-->>\Codelicia\Soql\DBAL\Result: pass to
+    \Codelicia\Soql\DBAL\Result-->>-ConnectionWrapper: returns
+    ConnectionWrapper->>-SoqlStatement: fetchAll()
+    SoqlStatement->>+\Codelicia\Soql\FetchDataUtility: fetchAll()
+    \Codelicia\Soql\FetchDataUtility-->>+\GuzzleHttp\ClientInterface: send()
+    Note right of \Codelicia\Soql\FetchDataUtility: Countable goes here?<br> before creating the Payload?
+    \Codelicia\Soql\FetchDataUtility->>+\Codelicia\Soql\Payload: new
+    \Codelicia\Soql\Payload-->>+SoqlStatement: returns
+```
+
 ### Contributors ✨
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
