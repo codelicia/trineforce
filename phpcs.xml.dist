@@ -15,5 +15,6 @@
         <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint"/>
         <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint"/>
         <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint"/>
+        <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming.SuperfluousSuffix" />
     </rule>
 </ruleset>

@@ -6,6 +6,7 @@ namespace Codelicia\Soql;
 
 use Assert\Assertion;
 use Codelicia\Soql\DBAL\Result;
+use Codelicia\Soql\Factory\Http\RequestThrottler;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
@@ -17,6 +18,7 @@ use GuzzleHttp\Psr7\Request;
 use JsonException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use ReturnTypeWillChange;
 
 use function array_filter;
 use function array_key_exists;
@@ -56,7 +58,7 @@ class ConnectionWrapper extends Connection
         $types = [],
         QueryCacheProfile|null $qcp = null,
     ): Result {
-        $statement = new SoqlStatement($this->getHttpClient(), $sql);
+        $statement = new SoqlStatement($this->getNativeConnection(), $sql);
 
         return new Result($statement->execute($params), $this);
     }
@@ -315,12 +317,13 @@ class ConnectionWrapper extends Connection
     /**
      * @throws GuzzleException
      * @throws JsonException
+     * @throws Exception
      */
     private function send(RequestInterface $request): ResponseInterface
     {
         $requestId = uniqid('requestId', false);
         $logger    = $this->_config->getSQLLogger();
-        $http      = $this->getHttpClient();
+        $http      = $this->getNativeConnection();
 
         if ($logger) {
             $contents = $request->getBody()->getContents();
@@ -338,6 +341,8 @@ class ConnectionWrapper extends Connection
         $request->getBody()->rewind();
 
         $response = $http->send($request);
+
+        RequestThrottler::of($response->getHeaderLine(RequestThrottler::HEADER));
 
         if ($logger) {
             $contents = $response->getBody()->getContents();
@@ -363,7 +368,8 @@ class ConnectionWrapper extends Connection
     }
 
     /** @throws Exception */
-    private function getHttpClient(): ClientInterface
+    #[ReturnTypeWillChange]
+    public function getNativeConnection(): ClientInterface
     {
         $this->connect();
 

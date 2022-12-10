@@ -22,12 +22,7 @@ class SoqlConnection implements ServerInfoAwareConnection
     /** {@inheritDoc} */
     public function prepare(string $sql): SoqlStatement
     {
-        return new SoqlStatement($this->getHttpClient(), $sql);
-    }
-
-    public function getHttpClient(): ClientInterface
-    {
-        return $this->authorizedClientFactory->__invoke();
+        return new SoqlStatement($this->getNativeConnection(), $sql);
     }
 
     public function getNativeConnection(): ClientInterface
@@ -87,6 +82,6 @@ class SoqlConnection implements ServerInfoAwareConnection
 
     public function getServerVersion(): string
     {
-        return $this->getHttpClient()->getConfig('apiVersion');
+        return $this->getNativeConnection()->getConfig('apiVersion');
     }
 }
