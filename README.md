@@ -172,11 +172,14 @@ data related to that resource.
 
 ```php
 $this->connection
-    ->getNativeConnection()
+    ->getNativeConnection() // : \GuzzleHttp\ClientInterface
     ->request(
         'GET',
         sprintf('/services/data/v40.0/sobjects/Opportunity/%s', $id)
-    );
+    )
+    ->getBody()
+    ->getContents()
+;
 ```
 
 ### 📈 Diagram
