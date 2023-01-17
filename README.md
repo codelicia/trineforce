@@ -162,34 +162,53 @@ $conn->transactional(static function () use ($conn) {
 });
 ```
 
-### Contributors ✨
+### 🚫 Known Limitations
 
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
+As of today, we cannot consume a `sObject` using the `queryBuilder` to get all fields from
+the `sObject`. That is because Salesforce doesn't accept `SELECT *` as a valid query.
 
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+The workaround that issue is to do a `GET` request to specific resources, then can grab all
+data related to that resource.
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tr>
-    <td align="center"><a href="https://twitter.com/malukenho"><img src="https://avatars2.githubusercontent.com/u/3275172?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jefersson Nathan</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/commits?author=malukenho" title="Code">💻</a> <a href="#maintenance-malukenho" title="Maintenance">🚧</a></td>
-    <td align="center"><a href="http://eher.com.br"><img src="https://avatars0.githubusercontent.com/u/398034?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Alexandre Eher</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/commits?author=eher" title="Code">💻</a></td>
-    <td align="center"><a href="https://airton.dev"><img src="https://avatars1.githubusercontent.com/u/6540546?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Airton Zanon</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/pulls?q=is%3Apr+reviewed-by%3Aairtonzanon" title="Reviewed Pull Requests">👀</a></td>
-    <td align="center"><a href="https://github.com/wpeereboom"><img src="https://avatars1.githubusercontent.com/u/516326?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Winfred Peereboom</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/issues?q=author%3Awpeereboom" title="Bug reports">🐛</a></td>
-    <td align="center"><a href="https://github.com/batusa"><img src="https://avatars3.githubusercontent.com/u/5388003?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Emmerson Siqueira</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/pulls?q=is%3Apr+reviewed-by%3Abatusa" title="Reviewed Pull Requests">👀</a></td>
-    <td align="center"><a href="https://github.com/echevalaz"><img src="https://avatars.githubusercontent.com/u/52658226?v=4?s=100" width="100px;" alt=""/><br /><sub><b>echevalaz</b></sub></a><br /><a href="https://github.com/codelicia/trineforce/issues?q=author%3Aechevalaz" title="Bug reports">🐛</a> <a href="#ideas-echevalaz" title="Ideas, Planning, & Feedback">🤔</a></td>
-  </tr>
-</table>
+```php
+$this->connection
+    ->getNativeConnection() // : \GuzzleHttp\ClientInterface
+    ->request(
+        'GET',
+        sprintf('/services/data/v40.0/sobjects/Opportunity/%s', $id)
+    )
+    ->getBody()
+    ->getContents()
+;
+```
 
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
+### 📈 Diagram
 
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+```mermaid
+%%{init: {'sequence': { 'mirrorActors': false, 'rightAngles': true, 'messageAlign': 'center', 'actorFontSize': 20, 'actorFontWeight': 900, 'noteFontSize': 18, 'noteFontWeight': 600, 'messageFontSize': 20}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'actorBorder': '#D86613', 'activationBorderColor': '#232F3E', 'activationBkgColor': '#D86613','noteBorderColor': '#232F3E', 'signalColor': 'white', 'signalTextColor': 'gray', 'sequenceNumberColor': '#232F3E'}}}%%
+sequenceDiagram
+    autonumber
+    Note left of ConnectionWrapper: Everything starts with <br/>the ConnectionWrapper.
+    ConnectionWrapper->>QueryBuilder: createQueryBuilder()
+    activate QueryBuilder
+    alt 
+        QueryBuilder->>QueryBuilder: execute() <br>Calls private executeQuery()<br>method
+    end
+    QueryBuilder->>+ConnectionWrapper: executeQuery()
+    deactivate QueryBuilder
+    ConnectionWrapper->>SoqlStatement: execute() 
+    SoqlStatement->>+\Doctrine\DBAL\Driver\Result: execute()
+    ConnectionWrapper->>+\Codelicia\Soql\DBAL\Result: new
+    \Doctrine\DBAL\Driver\Result-->>\Codelicia\Soql\DBAL\Result: pass to
+    \Codelicia\Soql\DBAL\Result-->>-ConnectionWrapper: returns
+    ConnectionWrapper->>-SoqlStatement: fetchAll()
+    SoqlStatement->>+\Codelicia\Soql\FetchDataUtility: fetchAll()
+    \Codelicia\Soql\FetchDataUtility-->>+\GuzzleHttp\ClientInterface: send()
+    Note right of \Codelicia\Soql\FetchDataUtility: Countable goes here?<br> before creating the Payload?
+    \Codelicia\Soql\FetchDataUtility->>+\Codelicia\Soql\Payload: new
+    \Codelicia\Soql\Payload-->>+SoqlStatement: returns
+```
 
 ### Author
 
