@@ -8,9 +8,9 @@ use Codelicia\Soql\Factory\Http\RequestThrottler;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 
-use function assert;
 use function current;
 use function json_decode;
+use function Psl\invariant;
 use function sprintf;
 
 use const JSON_THROW_ON_ERROR;
@@ -44,7 +44,7 @@ final class FetchDataUtility
         $result = $this->fetchAll($client, $statement)
             ->getResults();
 
-        assert(! empty($result));
+        invariant(! empty($result), '$result should not be empty.');
 
         return current($result);
     }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
-use Assert\Assertion;
 use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Codelicia\Soql\Factory\HttpAccessTokenFactory;
 use Codelicia\Soql\Factory\HttpAuthorizedClientFactory;
@@ -18,6 +17,8 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Query;
 
 use function array_key_exists;
+use function array_merge_recursive;
+use function Psl\invariant;
 
 class SoqlDriver implements Driver, ExceptionConverter
 {
@@ -71,15 +72,21 @@ class SoqlDriver implements Driver, ExceptionConverter
     /** @param string[] $params */
     private function getAuthorizedClientFactory(array $params): AuthorizedClientFactory
     {
-        Assertion::keyExists($params, 'user');
-        Assertion::keyExists($params, 'password');
-        Assertion::keyExists($params, 'salesforceInstance');
-        Assertion::keyExists($params, 'apiVersion');
-        Assertion::keyExists($params, 'consumerKey');
-        Assertion::keyExists($params, 'consumerSecret');
+        // @fixme(malukenho): workaround to make sure we can work with symfony framework + doctrine bundle config
+        $params = array_merge_recursive([], $params, $params['driverOptions'] ?? []);
+
+        invariant(array_key_exists('user', $params), 'Missing "user" key.');
+        invariant(array_key_exists('password', $params), 'Missing "password" key.');
+        invariant(array_key_exists('salesforceInstance', $params), 'Missing "salesforceInstance" key.');
+        invariant(array_key_exists('apiVersion', $params), 'Missing "apiVersion" key.');
+        invariant(array_key_exists('consumerKey', $params), 'Missing "consumerKey" key.');
+        invariant(array_key_exists('consumerSecret', $params), 'Missing "consumerSecret" key.');
 
         if (array_key_exists('authorizedClientFactory', $params)) {
-            Assertion::isInstanceOf($params['authorizedClientFactory'], AuthorizedClientFactory::class);
+            invariant(
+                $params['authorizedClientFactory'] instanceof AuthorizedClientFactory,
+                '$params.authorizedClientFactory must be an instance of AuthorizedClientFactory.',
+            );
 
             return $params['authorizedClientFactory'];
         }

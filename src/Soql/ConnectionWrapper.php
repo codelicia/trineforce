@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
-use Assert\Assertion;
 use Codelicia\Soql\DBAL\Result;
 use Codelicia\Soql\Factory\Http\RequestThrottler;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
@@ -29,6 +28,7 @@ use function in_array;
 use function json_decode;
 use function json_encode;
 use function key;
+use function Psl\invariant;
 use function sprintf;
 use function uniqid;
 
@@ -138,7 +138,7 @@ class ConnectionWrapper extends Connection
         array $refs = [],
         array $headers = [],
     ): int {
-        Assertion::keyExists($identifier, 'Id');
+        invariant(array_key_exists('Id', $identifier), 'No Identifier was detected.');
 
         $param = $identifier['Id'] ?? (key($identifier) . '/' . $identifier[key($identifier)]);
 
@@ -223,7 +223,7 @@ class ConnectionWrapper extends Connection
         ];
 
         if ($refs !== []) {
-            Assertion::keyExists($refs, 'referenceId');
+            invariant(array_key_exists('referenceId', $refs), 'No referenceId was detected.');
 
             $command = array_merge($command, ['referenceId' => $refs['referenceId']]);
         }
