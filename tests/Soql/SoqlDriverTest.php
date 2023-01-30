@@ -9,8 +9,8 @@ use Codelicia\Soql\SoqlDriver;
 use Codelicia\Soql\SoqlError;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use Psl\Exception\InvariantViolationException;
 
 final class SoqlDriverTest extends TestCase
 {
@@ -19,7 +19,7 @@ final class SoqlDriverTest extends TestCase
     {
         $driver = new SoqlDriver();
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(InvariantViolationException::class);
         $driver->connect([]);
     }
 

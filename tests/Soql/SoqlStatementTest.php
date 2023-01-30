@@ -25,7 +25,7 @@ final class SoqlStatementTest extends TestCase
 
         self::assertSame(
             "SELECT Id FROM Contact WHERE Name = 'name' AND Surname = 'malukenho'",
-            $result->execute([':param1' => 'name', ':param2' => 'malukenho'])->getSql()
+            $result->execute(['param1' => 'name', 'param2' => 'malukenho'])->getSql()
         );
     }
 
@@ -36,8 +36,8 @@ final class SoqlStatementTest extends TestCase
         $sql    = 'SELECT Id FROM Contact WHERE Name = :name AND Surname = :surname';
         $sut    = new Soql\SoqlStatement($client, $sql);
 
-        $sut->bindValue(':name', 'John');
-        $sut->bindValue(':surname', 'Smith');
+        $sut->bindValue('name', 'John');
+        $sut->bindValue('surname', 'Smith');
 
         self::assertSame(
             "SELECT Id FROM Contact WHERE Name = 'John' AND Surname = 'Smith'",
@@ -52,10 +52,10 @@ final class SoqlStatementTest extends TestCase
         $sut    = new Soql\SoqlStatement(new Client(), $sql);
 
         $name = 'John';
-        $sut->bindParam(':name', $name);
+        $sut->bindParam('name', $name);
 
         $surname = 'Smith';
-        $sut->bindParam(':surname', $surname);
+        $sut->bindParam('surname', $surname);
 
         self::assertSame(
             "SELECT Id FROM Contact WHERE Name = 'John' AND Surname = 'Smith'",

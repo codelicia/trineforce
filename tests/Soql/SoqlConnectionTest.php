@@ -13,8 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 final class SoqlConnectionTest extends TestCase
 {
-    /** @var AuthorizedClientFactory|MockObject  */
-    private $authorizedClientFactory;
+    private AuthorizedClientFactory|MockObject $authorizedClientFactory;
 
     protected function setUp() : void
     {

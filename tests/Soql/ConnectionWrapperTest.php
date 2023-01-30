@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace CodeliciaTest\Soql;
 
 use Codelicia\Soql\ConnectionWrapper;
-use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Codelicia\Soql\Factory\Http\RequestThrottler;
 use Codelicia\Soql\SoqlDriver;
 use CodeliciaTest\Soql\Stubs\ConnectionWrapperFactory;
