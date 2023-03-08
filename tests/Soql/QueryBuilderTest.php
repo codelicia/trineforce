@@ -13,13 +13,14 @@ use Codelicia\Soql\SoqlDriver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use GuzzleHttp\Client;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
 final class QueryBuilderTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function join() : void
     {
         $connection   = $this->createMock(Connection::class);
@@ -57,7 +58,7 @@ final class QueryBuilderTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function execute_should_bind_values_to_query() : void
     {
         $connection   = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
@@ -84,7 +85,7 @@ final class QueryBuilderTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function execute_should_bind_values_to_query_within_the_inner_join() : void
     {
         $connection   = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
@@ -111,7 +112,7 @@ final class QueryBuilderTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function fetch_should_bind_values() : void
     {
         $connection = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
@@ -169,7 +170,7 @@ final class QueryBuilderTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_should_url_encode_string_parameters() : void
     {
         $phone = '+(000) 0000-0000';
@@ -179,7 +180,7 @@ final class QueryBuilderTest extends TestCase
         self::assertSame(urlencode($phone), $queryBuilder->getParameter('phone'));
     }
 
-    /** @test */
+    #[Test]
     public function it_should_not_url_encode_non_string_parameters() : void
     {
         $queryBuilder = (new QueryBuilder($this->createMock(Connection::class)))
@@ -188,7 +189,7 @@ final class QueryBuilderTest extends TestCase
         self::assertSame(12, $queryBuilder->getParameter('age'));
     }
 
-    /** @test */
+    #[Test]
     public function it_should_deny_left_join_method_call() : void
     {
         $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
@@ -198,7 +199,7 @@ final class QueryBuilderTest extends TestCase
         $queryBuilder->leftJoin('tableAlias', 'join', 'alas');
     }
 
-    /** @test */
+    #[Test]
     public function it_should_deny_right_join_method_call() : void
     {
         $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
@@ -208,7 +209,7 @@ final class QueryBuilderTest extends TestCase
         $queryBuilder->rightJoin('tableAlias', 'join', 'alas');
     }
 
-    /** @test */
+    #[Test]
     public function it_should_deny_inner_join_method_call() : void
     {
         $queryBuilder = new QueryBuilder($this->createMock(Connection::class));

@@ -7,11 +7,12 @@ namespace CodeliciaTest\Soql\Factory;
 use Codelicia\Soql\Factory\HttpAccessTokenFactory;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 final class HttpAccessTokenFactoryTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_should_reuse_access_token_after_authentication() : void
     {
         $factory = new HttpAccessTokenFactory(

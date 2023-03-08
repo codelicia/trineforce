@@ -10,6 +10,7 @@ use Codelicia\Soql\Factory\Http\RequestThrottler;
 use CodeliciaTest\Soql\Stubs;
 use Doctrine\DBAL\Exception;
 use GuzzleHttp\ClientInterface;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -30,7 +31,7 @@ final class RequestThrottlerTest extends TestCase
         $this->connection = Stubs\ConnectionWrapperFactory::create($this->client);
     }
 
-    /** @test */
+    #[Test]
     public function it_should_be_able_to_resolve_throttling_header(): void
     {
         $this->client->method('send')->with(self::anything())->willReturn($this->response);
@@ -48,7 +49,7 @@ final class RequestThrottlerTest extends TestCase
         $this->connection->insert('User', ['Name' => 'Pay as you go Opportunity'], ['Id' => 123]);
     }
 
-    /** @test */
+    #[Test]
     public function it_should_be_able_to_resolve_overflowed_throttling(): void
     {
         $this->client->expects(self::once())->method('send')->with(self::anything())->willReturn($this->response);

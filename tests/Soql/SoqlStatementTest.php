@@ -6,11 +6,12 @@ namespace CodeliciaTest\Soql;
 
 use Codelicia\Soql;
 use GuzzleHttp\Client;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 final class SoqlStatementTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_should_convert_positional_to_named_placeholders() : void
     {
         $result = new Soql\SoqlStatement(
@@ -29,7 +30,7 @@ final class SoqlStatementTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_should_bind_named_values() : void
     {
         $client = new Client();
@@ -45,7 +46,7 @@ final class SoqlStatementTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_should_bind_named_params() : void
     {
         $sql    = 'SELECT Id FROM Contact WHERE Name = :name AND Surname = :surname';

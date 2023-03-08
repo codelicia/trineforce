@@ -18,7 +18,7 @@
         "ext-json": "*",
         "ext-pdo": "*",
         "azjezz/psl": "^2.4.1",
-        "doctrine/dbal": "^3.5.3",
+        "doctrine/dbal": "^3.6.1",
         "doctrine/orm": "^2.14.1",
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4.3",
@@ -26,8 +26,8 @@
     },
     "require-dev": {
         "doctrine/coding-standard": "^11.1.0",
-        "malukenho/mcbumpface": "^1.1.5",
-        "phpunit/phpunit": "^9.5.28",
+        "malukenho/mcbumpface": "^1.2.0",
+        "phpunit/phpunit": "^10.0.14",
         "roave/security-advisories": "dev-master",
         "staabm/annotate-pull-request-from-checkstyle": "^1.8.3",
         "maglnet/composer-require-checker": "^4.5.0"

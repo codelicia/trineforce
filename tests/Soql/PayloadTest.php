@@ -6,15 +6,15 @@ namespace CodeliciaTest\Soql;
 
 use Codelicia\Soql\Payload;
 use Generator;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 final class PayloadTest extends TestCase
 {
-    /**
-     * @test
-     * @dataProvider provideValidPayload
-     */
-    public function create_payload_with_data(iterable $data) : void
+    #[Test]
+    #[DataProvider('provideValidPayload')]
+    public function create_payload_with_data(iterable $data): void
     {
         $payload = Payload::withValues($data);
 
@@ -25,11 +25,9 @@ final class PayloadTest extends TestCase
         self::assertNull($payload->getErrorCode());
     }
 
-    /**
-     * @test
-     * @dataProvider provideErrorPayload
-     */
-    public function create_error_payload_with_data(iterable $data) : void
+    #[Test]
+    #[DataProvider('provideErrorPayload')]
+    public function create_error_payload_with_data(iterable $data): void
     {
         $payload = Payload::withErrors($data);
 
@@ -40,7 +38,7 @@ final class PayloadTest extends TestCase
         self::assertSame('INVALID_TYPE', $payload->getErrorCode());
     }
 
-    public function provideValidPayload() : Generator
+    public static function provideValidPayload(): Generator
     {
         yield [
             'valid opportunity payload' =>  [
@@ -60,7 +58,7 @@ final class PayloadTest extends TestCase
         ];
     }
 
-    public function provideErrorPayload() : Generator
+    public static function provideErrorPayload(): Generator
     {
         yield [
             [
