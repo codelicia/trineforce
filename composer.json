@@ -48,5 +48,16 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "malukenho/mcbumpface": true
         }
+    },
+    "scripts": {
+        "phpcbf": "vendor/bin/phpcbf",
+        "phpcs": "vendor/bin/phpcs",
+        "phpunit": "php -dzend.assertions=1 vendor/bin/phpunit",
+        "require-checker": "vendor/bin/composer-require-checker check composer.json",
+        "test": [
+            "@phpcs",
+            "@phpunit",
+            "@require-checker"
+        ]
     }
 }
