@@ -9,7 +9,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Result as DBALResult;
 
-use function assert;
+use function Psl\invariant;
 
 class Result extends DBALResult
 {
@@ -24,7 +24,7 @@ class Result extends DBALResult
 
     public function getDriverResult(): SoqlDriverResult
     {
-        assert($this->storedResult instanceof SoqlDriverResult);
+        invariant($this->storedResult instanceof SoqlDriverResult, 'storedResult holds an wrong type class.');
 
         return $this->storedResult;
     }

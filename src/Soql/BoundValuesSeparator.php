@@ -25,6 +25,7 @@ final class BoundValuesSeparator
         $values = [];
 
         foreach ($boundValues as $parameter => $value) {
+            $parameter = sprintf(':%s', $parameter);
             if (! isset($types[$parameter])) {
                 $types[$parameter] = ParameterType::STRING;
             }

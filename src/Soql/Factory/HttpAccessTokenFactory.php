@@ -18,12 +18,12 @@ final class HttpAccessTokenFactory implements AccessTokenFactory
     private string|null $accessToken;
 
     public function __construct(
-        private string $salesforceInstance,
-        private string $apiVersion,
-        private string $consumerKey,
-        private string $consumerSecret,
-        private string $username,
-        private string $password,
+        private readonly string $salesforceInstance,
+        private readonly string $apiVersion,
+        private readonly string $consumerKey,
+        private readonly string $consumerSecret,
+        private readonly string $username,
+        private readonly string $password,
     ) {
         $this->accessToken = null;
     }

@@ -8,20 +8,20 @@ use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Codelicia\Soql\SoqlConnection;
 use Codelicia\Soql\SoqlStatement;
 use Codelicia\Soql\Driver\Result;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class SoqlConnectionTest extends TestCase
 {
-    /** @var AuthorizedClientFactory|MockObject  */
-    private $authorizedClientFactory;
+    private AuthorizedClientFactory|MockObject $authorizedClientFactory;
 
     protected function setUp() : void
     {
         $this->authorizedClientFactory = $this->createMock(AuthorizedClientFactory::class);
     }
 
-    /** @test */
+    #[Test]
     public function query() : void
     {
         $sut       = new SoqlConnection($this->authorizedClientFactory);
@@ -30,7 +30,7 @@ final class SoqlConnectionTest extends TestCase
         self::assertInstanceOf(Result::class, $statement);
     }
 
-    /** @test */
+    #[Test]
     public function quote() : void
     {
         $sut = new SoqlConnection($this->authorizedClientFactory);
@@ -40,7 +40,7 @@ final class SoqlConnectionTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function asserts_on_default_values() : void
     {
         $sut = new SoqlConnection($this->authorizedClientFactory);

@@ -9,21 +9,22 @@ use Codelicia\Soql\SoqlDriver;
 use Codelicia\Soql\SoqlError;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
-use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psl\Exception\InvariantViolationException;
 
 final class SoqlDriverTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_should_fail_if_null_password_or_username_is_provided() : void
     {
         $driver = new SoqlDriver();
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(InvariantViolationException::class);
         $driver->connect([]);
     }
 
-    /** @test */
+    #[Test]
     public function it_should_return_driver_details() : void
     {
         $driver = new SoqlDriver();

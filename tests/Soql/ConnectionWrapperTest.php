@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace CodeliciaTest\Soql;
 
 use Codelicia\Soql\ConnectionWrapper;
-use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Codelicia\Soql\Factory\Http\RequestThrottler;
 use Codelicia\Soql\SoqlDriver;
 use CodeliciaTest\Soql\Stubs\ConnectionWrapperFactory;
 use Doctrine\DBAL\Logging\SQLLogger;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -40,7 +40,7 @@ final class ConnectionWrapperTest extends TestCase
         $this->connection = ConnectionWrapperFactory::create($this->client);
     }
 
-    /** @test */
+    #[Test]
     public function it_is_using_the_right_api_version(): void
     {
         $this->client->expects(self::once())->method('send')
@@ -64,7 +64,7 @@ final class ConnectionWrapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function insert_with_no_transaction(): void
     {
         $this->client->expects(self::once())->method('send')
@@ -85,7 +85,7 @@ final class ConnectionWrapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function update_with_no_transaction(): void
     {
         $this->client->expects(self::once())->method('send')
@@ -106,7 +106,7 @@ final class ConnectionWrapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_should_deal_with_decoding_empty_string(): void
     {
         $this->connection->getConfiguration()->setSQLLogger(new class () implements SQLLogger {
@@ -136,7 +136,7 @@ final class ConnectionWrapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function delete_with_no_transaction(): void
     {
         $this->client->expects(self::once())->method('send')
@@ -155,7 +155,7 @@ final class ConnectionWrapperTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function transactional_state(): void
     {
         $connection = new ConnectionWrapper([], new SoqlDriver());
@@ -169,7 +169,7 @@ final class ConnectionWrapperTest extends TestCase
         self::assertFalse($connection->isTransactionActive());
     }
 
-    /** @test */
+    #[Test]
     public function transactional_should_throws_exception_when_error_occurs(): void
     {
         $this->client->expects(self::once())->method('send')
@@ -198,7 +198,7 @@ final class ConnectionWrapperTest extends TestCase
         $this->connection->commit();
     }
 
-    /** @test */
+    #[Test]
     public function upsert_with_no_transaction(): void
     {
         $this->client->expects(self::once())->method('send')

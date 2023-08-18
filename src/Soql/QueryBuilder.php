@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
-use Assert\Assertion;
 use BadMethodCallException;
 use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilder;
 
 use function implode;
+use function is_array;
 use function is_string;
+use function Psl\invariant;
 use function sprintf;
 use function urlencode;
 
@@ -22,8 +23,8 @@ final class QueryBuilder extends DbalQueryBuilder
      */
     public function join($table, $columns, $where = '', $extra = null): self
     {
-        Assertion::notEmpty($table);
-        Assertion::isArray($columns);
+        invariant(! empty($table), '$table should not be empty.');
+        invariant(is_array($columns), '$columns must be an array.');
 
         $query = sprintf(
             '(SELECT %s FROM %s%s%s)',
