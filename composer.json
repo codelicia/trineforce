@@ -46,7 +46,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "malukenho/mcbumpface": true
+            "malukenho/mcbumpface": true,
+            "infection/extension-installer": true
         }
     },
     "scripts": {
