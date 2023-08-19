@@ -18,16 +18,16 @@
         "ext-json": "*",
         "ext-pdo": "*",
         "azjezz/psl": "^2.7.0",
-        "doctrine/dbal": "^3.6.4",
-        "doctrine/orm": "^2.15.3",
+        "doctrine/dbal": "^3.6.6",
+        "doctrine/orm": "^2.16.1",
         "guzzlehttp/guzzle": "^7.7.0",
-        "guzzlehttp/psr7": "^2.5.0",
+        "guzzlehttp/psr7": "^2.6.0",
         "psr/http-message": "^1.1"
     },
     "require-dev": {
         "doctrine/coding-standard": "^12.0.0",
         "malukenho/mcbumpface": "^1.2.0",
-        "phpunit/phpunit": "^10.2.6",
+        "phpunit/phpunit": "^10.3.2",
         "roave/security-advisories": "dev-master",
         "staabm/annotate-pull-request-from-checkstyle": "^1.8.5",
         "maglnet/composer-require-checker": "^4.6.0"
@@ -51,13 +51,15 @@
         }
     },
     "scripts": {
-        "phpcbf": "vendor/bin/phpcbf",
         "phpcs": "vendor/bin/phpcs",
+        "phpcbf": "vendor/bin/phpcbf",
+        "infection": "vendor/bin/infection",
         "phpunit": "php -dzend.assertions=1 vendor/bin/phpunit",
         "require-checker": "vendor/bin/composer-require-checker check composer.json",
         "test": [
             "@phpcs",
             "@phpunit",
+            "@infection",
             "@require-checker"
         ]
     }
