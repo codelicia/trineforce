@@ -47,13 +47,13 @@ class SoqlStatement implements Statement
         $this->types        = [];
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
         return $this->bindParam($param, $value, $type);
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
         if (is_int($param)) {
@@ -71,7 +71,7 @@ class SoqlStatement implements Statement
         return true;
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function execute($params = null): \Doctrine\DBAL\Driver\Result
     {
         if ($params !== null) {

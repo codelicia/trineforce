@@ -37,32 +37,32 @@ class SoqlDriver implements Driver, ExceptionConverter
         return 'soql';
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function convert(Exception $exception, Query|null $query): DriverException
     {
         // fixme
         return DriverError::withException($exception);
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function getDatabase(\Doctrine\DBAL\Connection $conn)
     {
         return null;
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function getDatabasePlatform(): MySQLPlatform
     {
         return new MySQLPlatform();
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function getExceptionConverter(): ExceptionConverter
     {
         return $this;
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn, AbstractPlatform $platform)
     {
         // TODO: implements specific schema manager
