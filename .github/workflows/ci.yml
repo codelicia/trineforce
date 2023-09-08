@@ -32,7 +32,7 @@ jobs:
 
     - name: Run Infection
       run: |
-        XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-xml cov
+        XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-xml cov --log-junit=cov/result.junit.xml
         ./vendor/bin/infection --coverage=cov
 
     - name: Run PhpCs
