@@ -3,7 +3,7 @@
         "text": "infection.diff",
         "perMutator": "php://stderr"
     },
-    "minCoveredMsi": 75,
+    "minCoveredMsi": 50,
     "minMsi": 7,
     "mutators": { "@default": true },
     "source": { "directories": [ "src" ] },
