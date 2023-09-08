@@ -19,15 +19,15 @@
         "ext-pdo": "*",
         "azjezz/psl": "^2.7.0",
         "doctrine/dbal": "^3.6.6",
-        "doctrine/orm": "^2.16.1",
-        "guzzlehttp/guzzle": "^7.7.0",
-        "guzzlehttp/psr7": "^2.6.0",
-        "psr/http-message": "^1.1"
+        "doctrine/orm": "^2.16.2",
+        "guzzlehttp/guzzle": "^7.8.0",
+        "guzzlehttp/psr7": "^2.6.1",
+        "psr/http-message": "2.0"
     },
     "require-dev": {
         "doctrine/coding-standard": "^12.0.0",
         "malukenho/mcbumpface": "^1.2.0",
-        "phpunit/phpunit": "^10.3.2",
+        "phpunit/phpunit": "^10.3.3",
         "roave/security-advisories": "dev-master",
         "staabm/annotate-pull-request-from-checkstyle": "^1.8.5",
         "maglnet/composer-require-checker": "^4.6.0"
