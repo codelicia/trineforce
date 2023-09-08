@@ -31,7 +31,9 @@ jobs:
       run: composer run phpunit
 
     - name: Run Infection
-      run: composer run infection
+      run: |
+        XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-xml cov
+        ./vendor/bin/infection --coverage=cov
 
     - name: Run PhpCs
       run: ./vendor/bin/phpcs -q --report=checkstyle | ./vendor/bin/cs2pr
