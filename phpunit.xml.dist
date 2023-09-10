@@ -6,12 +6,13 @@
     bootstrap="vendor/autoload.php"
     cacheDirectory=".phpunit.cache"
 >
-    <coverage>
-        <include>
-            <directory>./src/</directory>
-        </include>
-    </coverage>
-    <testsuite name="Salesforce Soql Doctrine Driver Test Suite">
-        <directory>./tests/</directory>
-    </testsuite>
+  <coverage/>
+  <testsuite name="Salesforce Soql Doctrine Driver Test Suite">
+    <directory>./tests/</directory>
+  </testsuite>
+  <source>
+    <include>
+      <directory>./src/</directory>
+    </include>
+  </source>
 </phpunit>
