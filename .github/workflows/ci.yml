@@ -1,6 +1,6 @@
 name: Run CI
 
-on: [push, pull_request]
+on: push
 
 jobs:
   build:
@@ -10,33 +10,25 @@ jobs:
     strategy:
       matrix:
         php: ['8.1', '8.2']
-        dependencies: ['normal', 'authoritative']
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Install dependencies
-      if: matrix.dependencies == 'normal'
-      run: composer install --prefer-dist
-      env:
-        COMPOSER_ROOT_VERSION: dev-master
-
-    - name: Install dependencies
-      if: matrix.dependencies == 'authoritative'
       run: composer install --prefer-dist --classmap-authoritative
-      env:
-        COMPOSER_ROOT_VERSION: dev-master
 
-    - name: Run Phpunit
-      run: composer run phpunit
+    - name: Check code style
+      run: composer run style-check -- -q --report=checkstyle | ./vendor/bin/cs2pr
 
-    - name: Run Infection
+    - name: Run unit tests
+      run: composer run test-unit
+
+    - name: Run mutation tests
       run: |
-        XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-xml cov --log-junit=cov/result.junit.xml
-        ./vendor/bin/infection --coverage=cov
-
-    - name: Run PhpCs
-      run: ./vendor/bin/phpcs -q --report=checkstyle | ./vendor/bin/cs2pr
+        composer run test-unit -- --coverage-xml cov --log-junit=cov/result.junit.xml
+        composer run test-mutation -- --coverage=cov
+      env:
+        XDEBUG_MODE: coverage
 
     - name: Check dependency usage
-      run: ./vendor/bin/composer-require-checker check ./composer.json
+      run: composer run composer-check

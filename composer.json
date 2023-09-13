@@ -52,16 +52,24 @@
         }
     },
     "scripts": {
-        "phpcs": "vendor/bin/phpcs",
-        "phpcbf": "vendor/bin/phpcbf",
-        "infection": "vendor/bin/infection",
-        "phpunit": "php -dzend.assertions=1 vendor/bin/phpunit",
-        "require-checker": "vendor/bin/composer-require-checker check composer.json",
+        "composer-check": "composer-require-checker check composer.json",
+        "style-check": "phpcs",
+        "style-fix": "phpcbf",
+        "test-mutation": "infection",
+        "test-unit": "@php -dzend.assertions=1 vendor/bin/phpunit",
         "test": [
-            "@phpcs",
-            "@phpunit",
-            "@infection",
-            "@require-checker"
+            "@style-check",
+            "@test-unit",
+            "@test-mutation",
+            "@composer-check"
         ]
+    },
+    "scripts-descriptions": {
+        "style-check": "Check violations on code style",
+        "style-fix": "Fix violations on code style",
+        "test": "Run all the tests",
+        "test-mutation": "Run mutation tests",
+        "test-unit": "Run unit tests",
+        "composer-check": "Analyze composer dependencies"
     }
 }
