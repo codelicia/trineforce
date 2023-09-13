@@ -213,4 +213,4 @@ sequenceDiagram
 ### Author
 
 - Jefersson Nathan ([@malukenho](http://github.com/malukenho))
-- Alexandre Eher ([@Eher](http://github.com/malukenho))
+- Alexandre Eher ([@Eher](http://github.com/EHER))
