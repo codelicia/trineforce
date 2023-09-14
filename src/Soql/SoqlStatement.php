@@ -83,7 +83,6 @@ class SoqlStatement implements Statement
         if ($this->boundValues !== []) {
             $values = BoundValuesSeparator::separateBoundValues(
                 $this->boundValues,
-                $this->types,
             );
 
             $this->statement = str_replace(array_keys($values), $values, $this->statement);

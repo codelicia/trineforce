@@ -20,15 +20,12 @@ final class BoundValuesSeparator
     }
 
     /** @return list<string> */
-    public static function separateBoundValues(array $boundValues, array $types): array
+    public static function separateBoundValues(array $boundValues): array
     {
         $values = [];
 
         foreach ($boundValues as $parameter => $value) {
             $parameter = sprintf(':%s', $parameter);
-            if (! isset($types[$parameter])) {
-                $types[$parameter] = ParameterType::STRING;
-            }
 
             if (is_object($value) && method_exists($value, '__toString')) {
                 $value = (string) $value;
