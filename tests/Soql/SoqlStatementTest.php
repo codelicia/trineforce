@@ -12,26 +12,26 @@ use PHPUnit\Framework\TestCase;
 final class SoqlStatementTest extends TestCase
 {
     #[Test]
-    public function it_should_convert_positional_to_named_placeholders() : void
+    public function it_should_convert_positional_to_named_placeholders(): void
     {
         $result = new Soql\SoqlStatement(
             new Client(),
-            'SELECT Id FROM Contact WHERE Name = ? AND Surname = ?'
+            'SELECT Id FROM Contact WHERE Name = ? AND Surname = ?',
         );
 
         self::assertSame(
             'SELECT Id FROM Contact WHERE Name = :param1 AND Surname = :param2',
-            $result->execute()->getSql()
+            $result->execute()->getSql(),
         );
 
         self::assertSame(
             "SELECT Id FROM Contact WHERE Name = 'name' AND Surname = 'malukenho'",
-            $result->execute(['param1' => 'name', 'param2' => 'malukenho'])->getSql()
+            $result->execute(['param1' => 'name', 'param2' => 'malukenho'])->getSql(),
         );
     }
 
     #[Test]
-    public function it_should_bind_named_values() : void
+    public function it_should_bind_named_values(): void
     {
         $client = new Client();
         $sql    = 'SELECT Id FROM Contact WHERE Name = :name AND Surname = :surname';
@@ -42,15 +42,15 @@ final class SoqlStatementTest extends TestCase
 
         self::assertSame(
             "SELECT Id FROM Contact WHERE Name = 'John' AND Surname = 'Smith'",
-            $sut->execute()->getSql()
+            $sut->execute()->getSql(),
         );
     }
 
     #[Test]
-    public function it_should_bind_named_params() : void
+    public function it_should_bind_named_params(): void
     {
-        $sql    = 'SELECT Id FROM Contact WHERE Name = :name AND Surname = :surname';
-        $sut    = new Soql\SoqlStatement(new Client(), $sql);
+        $sql = 'SELECT Id FROM Contact WHERE Name = :name AND Surname = :surname';
+        $sut = new Soql\SoqlStatement(new Client(), $sql);
 
         $name = 'John';
         $sut->bindParam('name', $name);
@@ -60,7 +60,7 @@ final class SoqlStatementTest extends TestCase
 
         self::assertSame(
             "SELECT Id FROM Contact WHERE Name = 'John' AND Surname = 'Smith'",
-            $sut->execute()->getSql()
+            $sut->execute()->getSql(),
         );
     }
 }

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="/Users/malukenho/github.com/codelicia/trineforce/phpunit.xml.dist" tests="31" assertions="87" errors="0" failures="0" skipped="0" time="0.014716">
+    <testsuite name="Salesforce Soql Doctrine Driver Test Suite" tests="31" assertions="87" errors="0" failures="0" skipped="0" time="0.014716">
+      <testsuite name="CodeliciaTest\Soql\ConnectionWrapperTest" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/ConnectionWrapperTest.php" tests="8" assertions="33" errors="0" failures="0" skipped="0" time="0.003322">
+        <testcase name="it_is_using_the_right_api_version" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/ConnectionWrapperTest.php" line="44" class="CodeliciaTest\Soql\ConnectionWrapperTest" classname="CodeliciaTest.Soql.ConnectionWrapperTest" assertions="4" time="0.002305"/>
+        <testcase name="insert_with_no_transaction" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/ConnectionWrapperTest.php" line="68" class="CodeliciaTest\Soql\ConnectionWrapperTest" classname="CodeliciaTest.Soql.ConnectionWrapperTest" assertions="4" time="0.000164"/>
+        <testcase name="update_with_no_transaction" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/ConnectionWrapperTest.php" line="89" class="CodeliciaTest\Soql\ConnectionWrapperTest" classname="CodeliciaTest.Soql.ConnectionWrapperTest" assertions="4" time="0.000120"/>
+        <testcase name="it_should_deal_with_decoding_empty_string" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/ConnectionWrapperTest.php" line="110" class="CodeliciaTest\Soql\ConnectionWrapperTest" classname="CodeliciaTest.Soql.ConnectionWrapperTest" assertions="4" time="0.000162"/>
+        <testcase name="delete_with_no_transaction" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/ConnectionWrapperTest.php" line="140" class="CodeliciaTest\Soql\ConnectionWrapperTest" classname="CodeliciaTest.Soql.ConnectionWrapperTest" assertions="4" time="0.000094"/>
+        <testcase name="transactional_state" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/ConnectionWrapperTest.php" line="159" class="CodeliciaTest\Soql\ConnectionWrapperTest" classname="CodeliciaTest.Soql.ConnectionWrapperTest" assertions="3" time="0.000103"/>
+        <testcase name="transactional_should_throws_exception_when_error_occurs" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/ConnectionWrapperTest.php" line="173" class="CodeliciaTest\Soql\ConnectionWrapperTest" classname="CodeliciaTest.Soql.ConnectionWrapperTest" assertions="6" time="0.000265"/>
+        <testcase name="upsert_with_no_transaction" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/ConnectionWrapperTest.php" line="202" class="CodeliciaTest\Soql\ConnectionWrapperTest" classname="CodeliciaTest.Soql.ConnectionWrapperTest" assertions="4" time="0.000109"/>
+      </testsuite>
+      <testsuite name="CodeliciaTest\Soql\DriverErrorTest" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/DriverErrorTest.php" tests="1" assertions="2" errors="0" failures="0" skipped="0" time="0.000273">
+        <testcase name="it_should_retain_exception_instance" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/DriverErrorTest.php" line="19" class="CodeliciaTest\Soql\DriverErrorTest" classname="CodeliciaTest.Soql.DriverErrorTest" assertions="2" time="0.000273"/>
+      </testsuite>
+      <testsuite name="CodeliciaTest\Soql\Factory\Http\RequestThrottlerTest" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/Factory/Http/RequestThrottlerTest.php" tests="2" assertions="5" errors="0" failures="0" skipped="0" time="0.000489">
+        <testcase name="it_should_be_able_to_resolve_throttling_header" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/Factory/Http/RequestThrottlerTest.php" line="35" class="CodeliciaTest\Soql\Factory\Http\RequestThrottlerTest" classname="CodeliciaTest.Soql.Factory.Http.RequestThrottlerTest" assertions="1" time="0.000182"/>
+        <testcase name="it_should_be_able_to_resolve_overflowed_throttling" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/Factory/Http/RequestThrottlerTest.php" line="53" class="CodeliciaTest\Soql\Factory\Http\RequestThrottlerTest" classname="CodeliciaTest.Soql.Factory.Http.RequestThrottlerTest" assertions="4" time="0.000307"/>
+      </testsuite>
+      <testsuite name="CodeliciaTest\Soql\Factory\HttpAccessTokenFactoryTest" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/Factory/HttpAccessTokenFactoryTest.php" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.000239">
+        <testcase name="it_should_reuse_access_token_after_authentication" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/Factory/HttpAccessTokenFactoryTest.php" line="16" class="CodeliciaTest\Soql\Factory\HttpAccessTokenFactoryTest" classname="CodeliciaTest.Soql.Factory.HttpAccessTokenFactoryTest" assertions="1" time="0.000239"/>
+      </testsuite>
+      <testsuite name="CodeliciaTest\Soql\PayloadTest" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/PayloadTest.php" tests="2" assertions="10" errors="0" failures="0" skipped="0" time="0.000212">
+        <testsuite name="CodeliciaTest\Soql\PayloadTest::create_payload_with_data" tests="1" assertions="5" errors="0" failures="0" skipped="0" time="0.000159">
+          <testcase name="create_payload_with_data with data set #0" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/PayloadTest.php" line="17" class="CodeliciaTest\Soql\PayloadTest" classname="CodeliciaTest.Soql.PayloadTest" assertions="5" time="0.000159"/>
+        </testsuite>
+        <testsuite name="CodeliciaTest\Soql\PayloadTest::create_error_payload_with_data" tests="1" assertions="5" errors="0" failures="0" skipped="0" time="0.000052">
+          <testcase name="create_error_payload_with_data with data set #0" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/PayloadTest.php" line="30" class="CodeliciaTest\Soql\PayloadTest" classname="CodeliciaTest.Soql.PayloadTest" assertions="5" time="0.000052"/>
+        </testsuite>
+      </testsuite>
+      <testsuite name="CodeliciaTest\Soql\QueryBuilderTest" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/QueryBuilderTest.php" tests="9" assertions="22" errors="0" failures="0" skipped="0" time="0.007984">
+        <testcase name="join" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/QueryBuilderTest.php" line="24" class="CodeliciaTest\Soql\QueryBuilderTest" classname="CodeliciaTest.Soql.QueryBuilderTest" assertions="4" time="0.004042"/>
+        <testcase name="execute_should_bind_values_to_query" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/QueryBuilderTest.php" line="62" class="CodeliciaTest\Soql\QueryBuilderTest" classname="CodeliciaTest.Soql.QueryBuilderTest" assertions="2" time="0.000997"/>
+        <testcase name="execute_should_bind_values_to_query_within_the_inner_join" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/QueryBuilderTest.php" line="89" class="CodeliciaTest\Soql\QueryBuilderTest" classname="CodeliciaTest.Soql.QueryBuilderTest" assertions="2" time="0.000109"/>
+        <testcase name="fetch_should_bind_values" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/QueryBuilderTest.php" line="116" class="CodeliciaTest\Soql\QueryBuilderTest" classname="CodeliciaTest.Soql.QueryBuilderTest" assertions="6" time="0.002508"/>
+        <testcase name="it_should_url_encode_string_parameters" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/QueryBuilderTest.php" line="174" class="CodeliciaTest\Soql\QueryBuilderTest" classname="CodeliciaTest.Soql.QueryBuilderTest" assertions="1" time="0.000057"/>
+        <testcase name="it_should_not_url_encode_non_string_parameters" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/QueryBuilderTest.php" line="184" class="CodeliciaTest\Soql\QueryBuilderTest" classname="CodeliciaTest.Soql.QueryBuilderTest" assertions="1" time="0.000045"/>
+        <testcase name="it_should_deny_left_join_method_call" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/QueryBuilderTest.php" line="193" class="CodeliciaTest\Soql\QueryBuilderTest" classname="CodeliciaTest.Soql.QueryBuilderTest" assertions="2" time="0.000057"/>
+        <testcase name="it_should_deny_right_join_method_call" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/QueryBuilderTest.php" line="203" class="CodeliciaTest\Soql\QueryBuilderTest" classname="CodeliciaTest.Soql.QueryBuilderTest" assertions="2" time="0.000110"/>
+        <testcase name="it_should_deny_inner_join_method_call" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/QueryBuilderTest.php" line="213" class="CodeliciaTest\Soql\QueryBuilderTest" classname="CodeliciaTest.Soql.QueryBuilderTest" assertions="2" time="0.000058"/>
+      </testsuite>
+      <testsuite name="CodeliciaTest\Soql\SoqlConnectionTest" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/SoqlConnectionTest.php" tests="3" assertions="5" errors="0" failures="0" skipped="0" time="0.000253">
+        <testcase name="query" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/SoqlConnectionTest.php" line="25" class="CodeliciaTest\Soql\SoqlConnectionTest" classname="CodeliciaTest.Soql.SoqlConnectionTest" assertions="1" time="0.000134"/>
+        <testcase name="quote" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/SoqlConnectionTest.php" line="34" class="CodeliciaTest\Soql\SoqlConnectionTest" classname="CodeliciaTest.Soql.SoqlConnectionTest" assertions="1" time="0.000072"/>
+        <testcase name="asserts_on_default_values" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/SoqlConnectionTest.php" line="44" class="CodeliciaTest\Soql\SoqlConnectionTest" classname="CodeliciaTest.Soql.SoqlConnectionTest" assertions="3" time="0.000047"/>
+      </testsuite>
+      <testsuite name="CodeliciaTest\Soql\SoqlDriverTest" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/SoqlDriverTest.php" tests="2" assertions="5" errors="0" failures="0" skipped="0" time="0.000204">
+        <testcase name="it_should_fail_if_null_password_or_username_is_provided" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/SoqlDriverTest.php" line="19" class="CodeliciaTest\Soql\SoqlDriverTest" classname="CodeliciaTest.Soql.SoqlDriverTest" assertions="1" time="0.000145"/>
+        <testcase name="it_should_return_driver_details" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/SoqlDriverTest.php" line="28" class="CodeliciaTest\Soql\SoqlDriverTest" classname="CodeliciaTest.Soql.SoqlDriverTest" assertions="4" time="0.000059"/>
+      </testsuite>
+      <testsuite name="CodeliciaTest\Soql\SoqlStatementTest" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/SoqlStatementTest.php" tests="3" assertions="4" errors="0" failures="0" skipped="0" time="0.001740">
+        <testcase name="it_should_convert_positional_to_named_placeholders" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/SoqlStatementTest.php" line="15" class="CodeliciaTest\Soql\SoqlStatementTest" classname="CodeliciaTest.Soql.SoqlStatementTest" assertions="2" time="0.001632"/>
+        <testcase name="it_should_bind_named_values" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/SoqlStatementTest.php" line="34" class="CodeliciaTest\Soql\SoqlStatementTest" classname="CodeliciaTest.Soql.SoqlStatementTest" assertions="1" time="0.000059"/>
+        <testcase name="it_should_bind_named_params" file="/Users/malukenho/github.com/codelicia/trineforce/tests/Soql/SoqlStatementTest.php" line="50" class="CodeliciaTest\Soql\SoqlStatementTest" classname="CodeliciaTest.Soql.SoqlStatementTest" assertions="1" time="0.000049"/>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>

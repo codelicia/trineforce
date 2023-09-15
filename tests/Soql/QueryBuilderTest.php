@@ -18,12 +18,14 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
+use function urlencode;
+
 final class QueryBuilderTest extends TestCase
 {
     #[Test]
-    public function join() : void
+    public function join(): void
     {
-        $connection   = $this->createMock(Connection::class);
+        $connection = $this->createMock(Connection::class);
         $connection->expects(self::atLeastOnce())
             ->method('getDatabasePlatform')
             ->willReturn(new MySQLPlatform());
@@ -35,7 +37,7 @@ final class QueryBuilderTest extends TestCase
             $queryBuilder->select('Id')
                 ->from('Account')
                 ->join('Contact', ['Name'])
-                ->getSQL()
+                ->getSQL(),
         );
 
         self::assertSame(
@@ -44,7 +46,7 @@ final class QueryBuilderTest extends TestCase
                 ->from('Account')
                 ->join('Contact', ['Name'], '', 'LIMIT 1')
                 ->setMaxResults(1)
-                ->getSQL()
+                ->getSQL(),
         );
 
         self::assertSame(
@@ -54,14 +56,14 @@ final class QueryBuilderTest extends TestCase
                 ->join('Contact', ['Name'], 'Id = :id')
                 ->setParameter('id', '123')
                 ->setMaxResults(1)
-                ->getSQL()
+                ->getSQL(),
         );
     }
 
     #[Test]
-    public function execute_should_bind_values_to_query() : void
+    public function execute_should_bind_values_to_query(): void
     {
-        $connection   = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
+        $connection = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
         $soqlDriver->expects(self::atLeastOnce())
             ->method('getDatabasePlatform')
             ->willReturn(new MySQLPlatform());
@@ -81,14 +83,14 @@ final class QueryBuilderTest extends TestCase
                 ->setMaxResults(1)
                 ->executeQuery()
                 ->getDriverResult()
-                ->getSql()
+                ->getSql(),
         );
     }
 
     #[Test]
-    public function execute_should_bind_values_to_query_within_the_inner_join() : void
+    public function execute_should_bind_values_to_query_within_the_inner_join(): void
     {
-        $connection   = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
+        $connection = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
         $soqlDriver->expects(self::atLeastOnce())
             ->method('getDatabasePlatform')
             ->willReturn(new MySQLPlatform());
@@ -108,12 +110,12 @@ final class QueryBuilderTest extends TestCase
                 ->setMaxResults(1)
                 ->executeQuery()
                 ->getDriverResult()
-                ->getSql()
+                ->getSql(),
         );
     }
 
     #[Test]
-    public function fetch_should_bind_values() : void
+    public function fetch_should_bind_values(): void
     {
         $connection = new ConnectionWrapper([], $soqlDriver = $this->createMock(SoqlDriver::class));
 
@@ -159,21 +161,21 @@ final class QueryBuilderTest extends TestCase
         $queryBuilder = new QueryBuilder($connection);
 
         self::assertSame(
-            [1,2,3],
+            [1, 2, 3],
             $queryBuilder->select('Id')
                 ->from('Account')
                 ->join('Contact', ['Name'], 'Id = :id')
                 ->setParameter('id', '123')
                 ->setMaxResults(1)
                 ->executeQuery()
-                ->fetchAllAssociative()
+                ->fetchAllAssociative(),
         );
     }
 
     #[Test]
-    public function it_should_url_encode_string_parameters() : void
+    public function it_should_url_encode_string_parameters(): void
     {
-        $phone = '+(000) 0000-0000';
+        $phone        = '+(000) 0000-0000';
         $queryBuilder = (new QueryBuilder($this->createMock(Connection::class)))
             ->setParameter('phone', $phone);
 
@@ -181,7 +183,7 @@ final class QueryBuilderTest extends TestCase
     }
 
     #[Test]
-    public function it_should_not_url_encode_non_string_parameters() : void
+    public function it_should_not_url_encode_non_string_parameters(): void
     {
         $queryBuilder = (new QueryBuilder($this->createMock(Connection::class)))
             ->setParameter('age', 12);
@@ -190,7 +192,7 @@ final class QueryBuilderTest extends TestCase
     }
 
     #[Test]
-    public function it_should_deny_left_join_method_call() : void
+    public function it_should_deny_left_join_method_call(): void
     {
         $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
 
@@ -200,7 +202,7 @@ final class QueryBuilderTest extends TestCase
     }
 
     #[Test]
-    public function it_should_deny_right_join_method_call() : void
+    public function it_should_deny_right_join_method_call(): void
     {
         $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
 
@@ -210,7 +212,7 @@ final class QueryBuilderTest extends TestCase
     }
 
     #[Test]
-    public function it_should_deny_inner_join_method_call() : void
+    public function it_should_deny_inner_join_method_call(): void
     {
         $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
 

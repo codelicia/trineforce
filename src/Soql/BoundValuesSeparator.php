@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Codelicia\Soql;
 
-use Doctrine\DBAL\ParameterType;
-
 use function implode;
 use function is_array;
 use function is_object;
