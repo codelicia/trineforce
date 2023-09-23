@@ -138,8 +138,6 @@ class ConnectionWrapper extends Connection
         array $refs = [],
         array $headers = [],
     ): int {
-        invariant(array_key_exists('Id', $identifier), 'No Identifier was detected.');
-
         $param = $identifier['Id'] ?? (key($identifier) . '/' . $identifier[key($identifier)]);
 
         $request = new Request(
