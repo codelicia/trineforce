@@ -14,11 +14,11 @@
         }
     ],
     "require": {
-        "php": "^8.1 || ^8.2",
+        "php": "^8.2",
         "ext-json": "*",
         "ext-pdo": "*",
         "azjezz/psl": "^2.7.0",
-        "doctrine/dbal": "^3.6.6",
+        "doctrine/dbal": "^3.6.7",
         "doctrine/orm": "^2.16.2",
         "guzzlehttp/guzzle": "^7.8.0",
         "guzzlehttp/psr7": "^2.6.1",
@@ -26,10 +26,10 @@
     },
     "require-dev": {
         "doctrine/coding-standard": "^12.0.0",
-        "infection/infection": "^0.27.0",
-        "maglnet/composer-require-checker": "^4.6.0",
+        "infection/infection": "^0.27.2",
+        "maglnet/composer-require-checker": "^4.7.0",
         "malukenho/mcbumpface": "^1.2.0",
-        "phpunit/phpunit": "^10.3.3",
+        "phpunit/phpunit": "^10.3.5",
         "roave/security-advisories": "dev-master",
         "staabm/annotate-pull-request-from-checkstyle": "^1.8.5"
     },

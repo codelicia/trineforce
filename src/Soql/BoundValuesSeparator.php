@@ -11,7 +11,7 @@ use function is_string;
 use function method_exists;
 use function sprintf;
 
-final class BoundValuesSeparator
+final readonly class BoundValuesSeparator
 {
     private function __construct()
     {

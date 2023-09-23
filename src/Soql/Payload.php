@@ -12,7 +12,7 @@ use function json_decode;
 
 use const JSON_THROW_ON_ERROR;
 
-final class Payload
+final readonly class Payload
 {
     /** @param mixed[] $values */
     public function __construct(

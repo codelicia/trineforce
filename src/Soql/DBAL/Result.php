@@ -11,7 +11,7 @@ use Doctrine\DBAL\Result as DBALResult;
 
 use function Psl\invariant;
 
-class Result extends DBALResult
+final class Result extends DBALResult
 {
     private DriverResult $storedResult;
 

@@ -9,12 +9,12 @@ use GuzzleHttp\ClientInterface;
 
 use function sprintf;
 
-final class HttpAuthorizedClientFactory implements AuthorizedClientFactory
+final readonly class HttpAuthorizedClientFactory implements AuthorizedClientFactory
 {
     public function __construct(
-        private readonly AccessTokenFactory $accessTokenFactory,
-        private readonly string $salesforceInstance,
-        private readonly string $apiVersion,
+        private AccessTokenFactory $accessTokenFactory,
+        private string $salesforceInstance,
+        private string $apiVersion,
     ) {
     }
 

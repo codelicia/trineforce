@@ -9,7 +9,7 @@ use Doctrine\DBAL\Driver\Result as DriverResultInterface;
 use PDO;
 use PDOException;
 
-final class Result implements DriverResultInterface
+final readonly class Result implements DriverResultInterface
 {
     public function __construct(private SoqlStatement $statement)
     {
