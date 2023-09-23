@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 final class HttpAccessTokenFactoryTest extends TestCase
 {
     #[Test]
-    public function it_should_reuse_access_token_after_authentication() : void
+    public function it_should_reuse_access_token_after_authentication(): void
     {
         $factory = new HttpAccessTokenFactory(
             'salesforceInstance',
@@ -21,12 +21,12 @@ final class HttpAccessTokenFactoryTest extends TestCase
             'consumerKey',
             'consumerSecret',
             'username',
-            'password'
+            'password',
         );
 
         $client = $this->createMock(ClientInterface::class);
         $client->expects(self::once())->method('request')->willReturn(
-            new Response(200, [], '{"access_token": "s3Gr3D0"}')
+            new Response(200, [], '{"access_token": "s3Gr3D0"}'),
         );
 
         $factory->__invoke($client);

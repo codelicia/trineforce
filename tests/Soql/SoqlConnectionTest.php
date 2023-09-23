@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace CodeliciaTest\Soql;
 
+use Codelicia\Soql\Driver\Result;
 use Codelicia\Soql\Factory\AuthorizedClientFactory;
 use Codelicia\Soql\SoqlConnection;
-use Codelicia\Soql\SoqlStatement;
-use Codelicia\Soql\Driver\Result;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -16,13 +15,13 @@ final class SoqlConnectionTest extends TestCase
 {
     private AuthorizedClientFactory|MockObject $authorizedClientFactory;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->authorizedClientFactory = $this->createMock(AuthorizedClientFactory::class);
     }
 
     #[Test]
-    public function query() : void
+    public function query(): void
     {
         $sut       = new SoqlConnection($this->authorizedClientFactory);
         $statement = $sut->query('SELECT Id From Contact');
@@ -31,17 +30,17 @@ final class SoqlConnectionTest extends TestCase
     }
 
     #[Test]
-    public function quote() : void
+    public function quote(): void
     {
         $sut = new SoqlConnection($this->authorizedClientFactory);
         self::assertSame(
             '\'\"Sams\\\' son is in singing a sunny song\"\'',
-            $sut->quote('"Sams\' son is in singing a sunny song"')
+            $sut->quote('"Sams\' son is in singing a sunny song"'),
         );
     }
 
     #[Test]
-    public function asserts_on_default_values() : void
+    public function asserts_on_default_values(): void
     {
         $sut = new SoqlConnection($this->authorizedClientFactory);
 

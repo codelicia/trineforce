@@ -77,19 +77,30 @@ final class ConnectionWrapperTest extends TestCase
         $this->stream->expects(self::once())->method('getContents')
             ->willReturn(file_get_contents(__DIR__ . '/../fixtures/generic_success.json'));
 
-        $this->connection->insert(
+        $result = $this->connection->insert(
             'User',
             ['Name' => 'Pay as you go Opportunity'],
             ['Id' => 123],
             ['X-Unit-Testing' => 'Yes'],
         );
+
+        self::assertSame(1, $result);
     }
 
     #[Test]
     public function update_with_no_transaction(): void
     {
         $this->client->expects(self::once())->method('send')
-            ->with(self::assertHttpHeaderIsPropagated())
+            ->with(self::callback(static function (Request $req): bool {
+                self::assertSame(['X-Unit-Testing' => ['Yes']], $req->getHeaders());
+                self::assertSame('PATCH', $req->getMethod());
+                self::assertSame(
+                    '/services/data/api-version-456/sobjects/User/123',
+                    $req->getUri()->getPath(),
+                );
+
+                return true;
+            }))
             ->willReturn($this->response);
 
         $this->response->expects(self::once())->method('getBody')->willReturn($this->stream);
@@ -97,13 +108,47 @@ final class ConnectionWrapperTest extends TestCase
 
         $this->stream->expects(self::once())->method('rewind');
 
-        $this->connection->update(
+        $result = $this->connection->update(
             'User',
             ['Name' => 'Pay as you go Opportunity'],
             ['Id' => 123],
             [],
             ['X-Unit-Testing' => 'Yes'],
         );
+
+        self::assertSame(1, $result);
+    }
+
+    #[Test]
+    public function update_with_no_transaction_and_external_id(): void
+    {
+        $this->client->expects(self::once())->method('send')
+            ->with(self::callback(static function (Request $req): bool {
+                self::assertSame(['X-Unit-Testing' => ['Yes']], $req->getHeaders());
+                self::assertSame('PATCH', $req->getMethod());
+                self::assertSame(
+                    '/services/data/api-version-456/sobjects/User/External__Id/123',
+                    $req->getUri()->getPath(),
+                );
+
+                return true;
+            }))
+            ->willReturn($this->response);
+
+        $this->response->expects(self::once())->method('getBody')->willReturn($this->stream);
+        $this->response->expects(self::once())->method('getStatusCode')->willReturn(204);
+
+        $this->stream->expects(self::once())->method('rewind');
+
+        $result = $this->connection->update(
+            'User',
+            ['Name' => 'Pay as you go Opportunity'],
+            ['External__Id' => 123],
+            [],
+            ['X-Unit-Testing' => 'Yes'],
+        );
+
+        self::assertSame(1, $result);
     }
 
     #[Test]
@@ -128,19 +173,30 @@ final class ConnectionWrapperTest extends TestCase
         $this->stream->expects(self::once())->method('getContents')->willReturn('');
         $this->stream->expects(self::once())->method('rewind');
 
-        $this->connection->delete(
+        $result = $this->connection->delete(
             'User',
             ['Id' => 123],
             ['ref' => '1234'],
             ['X-Unit-Testing' => 'Yes'],
         );
+
+        self::assertSame(1, $result);
     }
 
     #[Test]
     public function delete_with_no_transaction(): void
     {
         $this->client->expects(self::once())->method('send')
-            ->with(self::assertHttpHeaderIsPropagated())
+            ->with(self::callback(static function (Request $req): bool {
+                self::assertSame(['X-Unit-Testing' => ['Yes']], $req->getHeaders());
+                self::assertSame('DELETE', $req->getMethod());
+                self::assertSame(
+                    '/services/data/api-version-456/sobjects/User/123',
+                    $req->getUri()->getPath(),
+                );
+
+                return true;
+            }))
             ->willReturn($this->response);
 
         $this->response->expects(self::once())->method('getBody')->willReturn($this->stream);
@@ -150,6 +206,34 @@ final class ConnectionWrapperTest extends TestCase
         $this->connection->delete(
             'User',
             ['Id' => 123],
+            ['ref' => '1234'],
+            ['X-Unit-Testing' => 'Yes'],
+        );
+    }
+
+    #[Test]
+    public function delete_with_no_transaction_and_external_id(): void
+    {
+        $this->client->expects(self::once())->method('send')
+            ->with(self::callback(static function (Request $req): bool {
+                self::assertSame(['X-Unit-Testing' => ['Yes']], $req->getHeaders());
+                self::assertSame('DELETE', $req->getMethod());
+                self::assertSame(
+                    '/services/data/api-version-456/sobjects/User/External__Id/123',
+                    $req->getUri()->getPath(),
+                );
+
+                return true;
+            }))
+            ->willReturn($this->response);
+
+        $this->response->expects(self::once())->method('getBody')->willReturn($this->stream);
+
+        $this->stream->expects(self::once())->method('rewind');
+
+        $this->connection->delete(
+            'User',
+            ['External__Id' => 123],
             ['ref' => '1234'],
             ['X-Unit-Testing' => 'Yes'],
         );
@@ -199,10 +283,19 @@ final class ConnectionWrapperTest extends TestCase
     }
 
     #[Test]
-    public function upsert_with_no_transaction(): void
+    public function upsert_with_no_transaction_and_external_id(): void
     {
         $this->client->expects(self::once())->method('send')
-            ->with(self::assertHttpHeaderIsPropagated())
+            ->with(self::callback(static function (Request $req): bool {
+                self::assertSame(['X-Unit-Testing' => ['Yes']], $req->getHeaders());
+                self::assertSame('PATCH', $req->getMethod());
+                self::assertSame(
+                    '/services/data/api-version-456/sobjects/User/ExternalId__c/12345',
+                    $req->getUri()->getPath(),
+                );
+
+                return true;
+            }))
             ->willReturn($this->response);
 
         $this->response->expects(self::once())->method('getBody')->willReturn($this->stream);
