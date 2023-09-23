@@ -146,7 +146,16 @@ final class ConnectionWrapperTest extends TestCase
     public function delete_with_no_transaction(): void
     {
         $this->client->expects(self::once())->method('send')
-            ->with(self::assertHttpHeaderIsPropagated())
+            ->with(self::callback(static function (Request $req): bool {
+                self::assertSame(['X-Unit-Testing' => ['Yes']], $req->getHeaders());
+                self::assertSame('DELETE', $req->getMethod());
+                self::assertSame(
+                    '/services/data/api-version-456/sobjects/User/123',
+                    $req->getUri()->getPath(),
+                );
+
+                return true;
+            }))
             ->willReturn($this->response);
 
         $this->response->expects(self::once())->method('getBody')->willReturn($this->stream);
@@ -208,7 +217,16 @@ final class ConnectionWrapperTest extends TestCase
     public function upsert_with_no_transaction(): void
     {
         $this->client->expects(self::once())->method('send')
-            ->with(self::assertHttpHeaderIsPropagated())
+            ->with(self::callback(static function (Request $req): bool {
+                self::assertSame(['X-Unit-Testing' => ['Yes']], $req->getHeaders());
+                self::assertSame('PATCH', $req->getMethod());
+                self::assertSame(
+                    '/services/data/api-version-456/sobjects/User/ExternalId__c/12345',
+                    $req->getUri()->getPath(),
+                );
+
+                return true;
+            }))
             ->willReturn($this->response);
 
         $this->response->expects(self::once())->method('getBody')->willReturn($this->stream);
