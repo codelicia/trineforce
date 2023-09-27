@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        php: ['8.2']
+        php: ['8.2', '8.3', 'nightly']
 
     steps:
     - uses: actions/checkout@v4
