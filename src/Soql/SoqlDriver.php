@@ -20,7 +20,7 @@ use function array_key_exists;
 use function array_merge_recursive;
 use function Psl\invariant;
 
-class SoqlDriver implements Driver, ExceptionConverter
+readonly class SoqlDriver implements Driver, ExceptionConverter
 {
     /** {@inheritDoc} */
     public function connect(array $params): Connection
