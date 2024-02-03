@@ -19,7 +19,7 @@
         "ext-pdo": "*",
         "azjezz/psl": "^2.7.0",
         "doctrine/dbal": "^3.6.6",
-        "doctrine/orm": "^2.16.2",
+        "doctrine/orm": "^3.0.0",
         "guzzlehttp/guzzle": "^7.8.0",
         "guzzlehttp/psr7": "^2.6.1",
         "psr/http-message": "2.0"
